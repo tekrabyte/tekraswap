@@ -128,7 +128,7 @@ export function PortfolioBalance({ compact = false, autoRefresh = true }) {
             <div>
               <div className="text-sm text-white/60 uppercase tracking-wider mb-1">Total Value</div>
               <div className="text-5xl font-bold text-white font-mono tracking-tight">
-                ${portfolio.total_usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {formatUSD(portfolio.total_usd)}
               </div>
             </div>
             
