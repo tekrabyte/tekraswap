@@ -3,7 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Coins, TrendingUp, Activity, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
-import { formatPrice, formatLargeNumber } from "@/utils/formatNumber";
+import { formatCurrency, formatLargeCurrency } from "@/utils/formatCurrency";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
