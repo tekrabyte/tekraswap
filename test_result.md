@@ -345,6 +345,27 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "Implemented - Updated TokenStats to show proper formatting for price (scientific notation for small values), volume_24h (K format), market_cap (M/K format). Added auto-refresh every 30 seconds and manual refresh button with timestamp."
+      - working: false
+        agent: "user"
+        comment: "User reported price showing as scientific notation $5.77e-10 which is confusing"
+      - working: "NA"
+        agent: "main"
+        comment: "FIXED - Created formatNumber.js utility with formatPrice(), formatLargeNumber() functions. Updated TokenStats to use formatPrice() for price display (no more scientific notation), formatLargeNumber() for volume and market cap with K/M/B suffixes."
+
+  - task: "Create number formatting utility for cryptocurrency prices"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/utils/formatNumber.js"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported confusing price display with scientific notation ($5.77e-10) making prices unreadable"
+      - working: "NA"
+        agent: "main"
+        comment: "Created formatNumber.js utility module with 5 key functions: formatPrice() - handles very small crypto prices without scientific notation, formatLargeNumber() - formats with K/M/B suffixes, formatTokenBalance() - formats token amounts with proper decimals, formatUSD() - formats USD values, formatPercentage() - formats percentage values. Handles edge cases like null/undefined/NaN, zero values, very small numbers (<$0.000001), and very large numbers (>$1M)."
 
   - task: "Update swap interface to show token list"
     implemented: true
