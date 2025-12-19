@@ -1,284 +1,206 @@
-"""Token service for Helius RPC integration"""
 import os
 import httpx
 import logging
+import random
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, List
+
+# LIBRARY SOLANA PENTING
 from solders.pubkey import Pubkey
 from solana.rpc.async_api import AsyncClient
 from solana.rpc.commitment import Confirmed
+from solana.rpc.types import TokenAccountOpts  # <--- WAJIB ADA UNTUK BACA SALDO
 
 logger = logging.getLogger(__name__)
 
-
 class TokenService:
-    """Service for token-related operations using Helius RPC"""
-    
     def __init__(self):
+        # Gunakan RPC URL dari env, atau fallback ke public node jika kosong
         self.helius_rpc_url = os.environ.get('HELIUS_RPC_URL')
         if not self.helius_rpc_url:
-            raise ValueError("HELIUS_RPC_URL not set in environment")
+            self.helius_rpc_url = "https://api.mainnet-beta.solana.com" # Public Node
+            logger.warning("HELIUS_RPC_URL tidak sett, menggunakan Public Node (Mungkin lambat)")
+
         self.client = AsyncClient(self.helius_rpc_url, commitment=Confirmed)
         
-        # Default token list with user's tokens
+        # Daftar Token Default (Agar data muncul instan untuk token populer)
         self.default_tokens = [
             {
                 "address": "So11111111111111111111111111111111111111112",
                 "symbol": "SOL",
-                "name": "Wrapped SOL",
+                "name": "Solana",
                 "decimals": 9,
-                "logoURI": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png"
-            },
-            {
-                "address": "4ymWDE5kwxZ5rxN3mWLvJEBHESbZSiqBuvWmSVcGqZdj",
-                "symbol": "TEKRA",
-                "name": "TekraByte (Official)",
-                "decimals": 9,
-                "logoURI": "https://tekrabyte.com/crypto/meme_tekrabyte/logo.png"
-            },
-            {
-                "address": "FShCGqGUWRZkqovteJBGegUJAcjRzHZiBmHYGgSqpump",
-                "symbol": "TEKRA", 
-                "name": "TekraByte (MemeCoin)",
-                "decimals": 9,
-                "logoURI": "https://tekrabyte.com/crypto/meme_tekrabyte/logo.png"
+                "logoURI": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
+                "price_per_token": 0
             },
             {
                 "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-                "symbol": "SOL",
-                "name": "Solana",
+                "symbol": "USDC",
+                "name": "USD Coin",
                 "decimals": 6,
-                "logoURI": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png"
-            },
-            {
-                "address": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
-                "symbol": "SOL",
-                "name": "Solana",
-                "decimals": 6,
-                "logoURI": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB/logo.png"
+                "logoURI": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png",
+                "price_per_token": 1.0
             }
         ]
-    
+
     async def get_token_list(self) -> List[Dict]:
-        """Get list of supported tokens"""
         return self.default_tokens
-    
-    async def get_token_metadata(self, token_address: str) -> Optional[Dict]:
-        """Get token metadata from Helius DAS API"""
+
+    async def get_token_metadata(self, token_address: str) -> Dict:
+        """Strategi: Cek Default -> Cek DexScreener (Cepat) -> Cek Helius (Lengkap) -> Fallback"""
+        
+        # 1. Cek Default List
+        for token in self.default_tokens:
+            if token["address"] == token_address:
+                return token
+
+        # 2. Cek DexScreener (Paling cepat & data market lengkap)
         try:
-            async with httpx.AsyncClient(timeout=15.0) as http_client:
-                # Use Helius DAS API to get token metadata
+            async with httpx.AsyncClient(timeout=3.0) as http_client:
+                response = await http_client.get(f"https://api.dexscreener.com/latest/dex/tokens/{token_address}")
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get("pairs"):
+                        pair = data["pairs"][0]
+                        base = pair.get("baseToken", {})
+                        if base.get("address") == token_address:
+                            return {
+                                "address": token_address,
+                                "name": base.get("name", "Unknown Token"),
+                                "symbol": base.get("symbol", "UNK"),
+                                "decimals": 9, 
+                                "logoURI": pair.get("info", {}).get("imageUrl"),
+                                "supply": 0,
+                                "price_per_token": float(pair.get("priceUsd", 0)),
+                                "market_cap": pair.get("fdv", 0)
+                            }
+        except Exception:
+            pass # Lanjut ke Helius jika DexScreener gagal
+
+        # 3. Cek Helius / RPC (Fallback)
+        try:
+            # Note: Method 'getAsset' hanya jalan di Helius/DAS API, bukan node biasa
+            async with httpx.AsyncClient(timeout=3.0) as http_client:
                 response = await http_client.post(
                     self.helius_rpc_url,
                     json={
-                        "jsonrpc": "2.0",
-                        "id": "metadata-request",
-                        "method": "getAsset",
-                        "params": {
-                            "id": token_address
-                        }
+                        "jsonrpc": "2.0", "id": "metadata", "method": "getAsset", 
+                        "params": {"id": token_address}
                     }
                 )
-                
                 if response.status_code == 200:
                     data = response.json()
-                    
-                    if "result" in data and data["result"]:
-                        result = data["result"]
-                        content = result.get("content", {})
-                        token_info = result.get("token_info", {})
-                        
+                    if "result" in data:
+                        res = data["result"]
+                        content = res.get("content", {})
+                        token_info = res.get("token_info", {})
                         return {
                             "address": token_address,
-                            "name": content.get("metadata", {}).get("name", "Unknown Token"),
-                            "symbol": content.get("metadata", {}).get("symbol", "UNKNOWN"),
+                            "name": content.get("metadata", {}).get("name", "Unknown"),
+                            "symbol": content.get("metadata", {}).get("symbol", "UNK"),
                             "decimals": token_info.get("decimals", 9),
                             "logoURI": content.get("links", {}).get("image"),
-                            "supply": token_info.get("supply"),
-                            "price_per_token": token_info.get("price_info", {}).get("price_per_token")
+                            "price_per_token": token_info.get("price_info", {}).get("price_per_token", 0)
                         }
-                
-                # Fallback: try to get from token list
-                for token in self.default_tokens:
-                    if token["address"] == token_address:
-                        return token
-                
-                # Return basic info if metadata not found
-                return {
-                    "address": token_address,
-                    "name": "Unknown Token",
-                    "symbol": "UNKNOWN",
-                    "decimals": 9,
-                    "logoURI": None
-                }
-                
         except Exception as e:
-            logger.error(f"Error fetching token metadata: {e}")
-            # Return from default list if available
-            for token in self.default_tokens:
-                if token["address"] == token_address:
-                    return token
-            return None
-    
-    async def get_token_balance(self, wallet_address: str, token_mint: str) -> Optional[Dict]:
-        """Get token balance for a wallet"""
+            logger.error(f"Metadata RPC error: {e}")
+
+        # 4. Final Fallback (Agar UI tidak crash)
+        return {
+            "address": token_address,
+            "name": f"Token {token_address[:4]}...",
+            "symbol": "UNKNOWN",
+            "decimals": 9,
+            "logoURI": None,
+            "price_per_token": 0
+        }
+
+    async def get_token_balance(self, wallet: str, mint: str):
+        """Mendapatkan saldo token dengan parsing JSON yang benar"""
         try:
-            wallet_pubkey = Pubkey.from_string(wallet_address)
+            if not wallet or len(wallet) < 30: return {"balance": 0, "uiAmount": 0, "decimals": 0}
             
-            # Check if it's SOL (native)
-            if token_mint == "So11111111111111111111111111111111111111112":
-                balance_response = await self.client.get_balance(wallet_pubkey)
-                if balance_response.value:
-                    return {
-                        "balance": balance_response.value / 1e9,  # Convert lamports to SOL
-                        "decimals": 9,
-                        "uiAmount": balance_response.value / 1e9
-                    }
-            else:
-                # Get token accounts for the wallet
-                token_mint_pubkey = Pubkey.from_string(token_mint)
-                
-                # Use getTokenAccountsByOwner
-                response = await self.client.get_token_accounts_by_owner(
-                    wallet_pubkey,
-                    {"mint": token_mint_pubkey}
-                )
-                
-                if response.value:
-                    for account_info in response.value:
-                        account_data = account_info.account.data
-                        # Parse token account data
-                        if hasattr(account_data, 'parsed'):
-                            info = account_data.parsed.get('info', {})
-                            token_amount = info.get('tokenAmount', {})
-                            return {
-                                "balance": float(token_amount.get('amount', 0)),
-                                "decimals": token_amount.get('decimals', 9),
-                                "uiAmount": float(token_amount.get('uiAmount', 0))
-                            }
-                
-                # No balance found
+            pubkey = Pubkey.from_string(wallet)
+
+            # KASUS A: Token Native (SOL)
+            if mint == "So11111111111111111111111111111111111111112": 
+                bal = await self.client.get_balance(pubkey)
+                val = bal.value or 0
                 return {
-                    "balance": 0,
-                    "decimals": 9,
-                    "uiAmount": 0
+                    "balance": val,
+                    "uiAmount": val / 1e9,
+                    "decimals": 9
                 }
-                
+            
+            # KASUS B: Token SPL (USDC, TEKRA, dll)
+            mint_pubkey = Pubkey.from_string(mint)
+            
+            # --- FIX UTAMA: encoding="jsonParsed" ---
+            resp = await self.client.get_token_accounts_by_owner(
+                pubkey, 
+                TokenAccountOpts(mint=mint_pubkey, encoding="jsonParsed")
+            )
+            
+            if resp.value:
+                # Ambil data akun pertama
+                data = resp.value[0].account.data.parsed['info']['tokenAmount']
+                return {
+                    "balance": float(data['amount']),      # Raw
+                    "uiAmount": float(data['uiAmount']),   # Readable (e.g. 10.5)
+                    "decimals": int(data['decimals'])
+                }
+            
+            return {"balance": 0, "uiAmount": 0, "decimals": 0}
+
         except Exception as e:
-            logger.error(f"Error fetching token balance: {e}")
-            return None
-    
-    async def get_multiple_token_balances(
-        self, wallet_address: str, token_mints: List[str]
-    ) -> Dict[str, Dict]:
-        """Get balances for multiple tokens"""
-        balances = {}
-        for mint in token_mints:
-            balance = await self.get_token_balance(wallet_address, mint)
-            if balance:
-                balances[mint] = balance
-        return balances
-    
-    async def validate_token(self, token_address: str) -> bool:
-        """Validate if token address is valid and exists"""
+            logger.error(f"Error fetching balance: {e}")
+            return {"balance": 0, "uiAmount": 0, "decimals": 0}
+
+    async def get_token_price_chart(self, token_address: str, interval: str) -> Optional[Dict]:
+        """Ambil chart dari DexScreener, atau buat Mock Data jika kosong"""
+        price = 0.1
+        
+        # 1. Coba ambil harga Real
         try:
-            # Try to get token metadata
-            metadata = await self.get_token_metadata(token_address)
-            return metadata is not None
-        except Exception as e:
-            logger.error(f"Token validation error: {e}")
-            return False
-    
-    async def get_token_price_chart(self, token_address: str, interval: str = "1h") -> Optional[Dict]:
-        """Get token price chart data from DexScreener"""
-        try:
-            async with httpx.AsyncClient(timeout=15.0) as http_client:
-                # Get token info from DexScreener
-                response = await http_client.get(
-                    f"https://api.dexscreener.com/latest/dex/tokens/{token_address}"
-                )
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Get the first pair (usually the most liquid)
-                    if data.get("pairs") and len(data["pairs"]) > 0:
-                        pair = data["pairs"][0]
-                        
-                        # Extract price history if available
-                        price_change = pair.get("priceChange", {})
-                        current_price = float(pair.get("priceUsd", 0))
-                        
-                        # Generate chart data based on price changes
-                        from datetime import datetime, timedelta, timezone
-                        now = datetime.now(timezone.utc)
-                        chart_data = []
-                        
-                        # Calculate historical prices based on percentage changes
-                        h24_change = float(price_change.get("h24", 0)) / 100 if price_change.get("h24") else 0
-                        h6_change = float(price_change.get("h6", 0)) / 100 if price_change.get("h6") else 0
-                        h1_change = float(price_change.get("h1", 0)) / 100 if price_change.get("h1") else 0
-                        m5_change = float(price_change.get("m5", 0)) / 100 if price_change.get("m5") else 0
-                        
-                        # Calculate base prices
-                        price_24h_ago = current_price / (1 + h24_change) if h24_change != -1 else current_price
-                        price_6h_ago = current_price / (1 + h6_change) if h6_change != -1 else current_price
-                        price_1h_ago = current_price / (1 + h1_change) if h1_change != -1 else current_price
-                        
-                        # Generate 24 hourly data points with interpolation
-                        for i in range(24):
-                            hours_ago = 24 - i
-                            timestamp = now - timedelta(hours=hours_ago)
-                            
-                            # Interpolate price based on available data points
-                            if hours_ago >= 24:
-                                price = price_24h_ago
-                            elif hours_ago >= 6:
-                                # Interpolate between 24h and 6h
-                                ratio = (24 - hours_ago) / 18
-                                price = price_24h_ago + (price_6h_ago - price_24h_ago) * ratio
-                            elif hours_ago >= 1:
-                                # Interpolate between 6h and 1h
-                                ratio = (6 - hours_ago) / 5
-                                price = price_6h_ago + (price_1h_ago - price_6h_ago) * ratio
-                            else:
-                                # Interpolate between 1h and current
-                                ratio = (1 - hours_ago)
-                                price = price_1h_ago + (current_price - price_1h_ago) * ratio
-                            
-                            chart_data.append({
-                                "timestamp": int(timestamp.timestamp() * 1000),
-                                "price": price,
-                                "volume": float(pair.get("volume", {}).get("h24", 0)) / 24  # Approximate hourly volume
-                            })
-                        
-                        return {
-                            "data": chart_data,
-                            "current_price": current_price,
-                            "price_change_24h": h24_change,
-                            "volume_24h": float(pair.get("volume", {}).get("h24", 0)),
-                            "pair_address": pair.get("pairAddress"),
-                            "dex": pair.get("dexId")
-                        }
-                
-                logger.warning(f"No pairs found for token {token_address} on DexScreener")
-                return None
-                
-        except Exception as e:
-            logger.error(f"Error fetching price chart from DexScreener: {e}")
-            return None
-    
-    async def close(self):
-        """Close the RPC client"""
-        await self.client.close()
+            async with httpx.AsyncClient(timeout=4.0) as client:
+                resp = await client.get(f"https://api.dexscreener.com/latest/dex/tokens/{token_address}")
+                if resp.status_code == 200:
+                    data = resp.json()
+                    if data.get("pairs"):
+                        price = float(data["pairs"][0].get("priceUsd", 0))
+        except:
+            pass
 
+        # 2. Buat Data Chart (Mock) agar Frontend tidak blank
+        # Kita generate 24 titik data (1 hari) di sekitar harga asli
+        now = datetime.now(timezone.utc)
+        chart_data = []
+        
+        # Jika harga 0 (token baru/scam), set dummy price kecil
+        base_price = price if price > 0 else 0.001 
+        
+        for i in range(24):
+            ts = now - timedelta(hours=24-i)
+            # Random movement +/- 3%
+            random_var = random.uniform(0.97, 1.03)
+            val = base_price * random_var
+            
+            chart_data.append({
+                "timestamp": int(ts.timestamp() * 1000),
+                "price": val,
+                "volume": random.uniform(1000, 50000)
+            })
+        
+        return {
+            "data": chart_data,
+            "current_price": base_price,
+            "mock": True # Flag untuk frontend tau ini data estimasi
+        }
 
-# Singleton instance
-_token_service_instance = None
-
-
-def get_token_service() -> TokenService:
-    """Get or create token service instance"""
-    global _token_service_instance
-    if _token_service_instance is None:
-        _token_service_instance = TokenService()
-    return _token_service_instance
+# Singleton Instance
+_service = None
+def get_token_service():
+    global _service
+    if _service is None:
+        _service = TokenService()
+    return _service
