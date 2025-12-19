@@ -188,6 +188,85 @@ class TokenService:
             logger.error(f"Token validation error: {e}")
             return False
     
+    async def get_token_price_chart(self, token_address: str, interval: str = "1h") -> Optional[Dict]:
+        """Get token price chart data from DexScreener"""
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as http_client:
+                # Get token info from DexScreener
+                response = await http_client.get(
+                    f"https://api.dexscreener.com/latest/dex/tokens/{token_address}"
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    # Get the first pair (usually the most liquid)
+                    if data.get("pairs") and len(data["pairs"]) > 0:
+                        pair = data["pairs"][0]
+                        
+                        # Extract price history if available
+                        price_change = pair.get("priceChange", {})
+                        current_price = float(pair.get("priceUsd", 0))
+                        
+                        # Generate chart data based on price changes
+                        from datetime import datetime, timedelta, timezone
+                        now = datetime.now(timezone.utc)
+                        chart_data = []
+                        
+                        # Calculate historical prices based on percentage changes
+                        h24_change = float(price_change.get("h24", 0)) / 100 if price_change.get("h24") else 0
+                        h6_change = float(price_change.get("h6", 0)) / 100 if price_change.get("h6") else 0
+                        h1_change = float(price_change.get("h1", 0)) / 100 if price_change.get("h1") else 0
+                        m5_change = float(price_change.get("m5", 0)) / 100 if price_change.get("m5") else 0
+                        
+                        # Calculate base prices
+                        price_24h_ago = current_price / (1 + h24_change) if h24_change != -1 else current_price
+                        price_6h_ago = current_price / (1 + h6_change) if h6_change != -1 else current_price
+                        price_1h_ago = current_price / (1 + h1_change) if h1_change != -1 else current_price
+                        
+                        # Generate 24 hourly data points with interpolation
+                        for i in range(24):
+                            hours_ago = 24 - i
+                            timestamp = now - timedelta(hours=hours_ago)
+                            
+                            # Interpolate price based on available data points
+                            if hours_ago >= 24:
+                                price = price_24h_ago
+                            elif hours_ago >= 6:
+                                # Interpolate between 24h and 6h
+                                ratio = (24 - hours_ago) / 18
+                                price = price_24h_ago + (price_6h_ago - price_24h_ago) * ratio
+                            elif hours_ago >= 1:
+                                # Interpolate between 6h and 1h
+                                ratio = (6 - hours_ago) / 5
+                                price = price_6h_ago + (price_1h_ago - price_6h_ago) * ratio
+                            else:
+                                # Interpolate between 1h and current
+                                ratio = (1 - hours_ago)
+                                price = price_1h_ago + (current_price - price_1h_ago) * ratio
+                            
+                            chart_data.append({
+                                "timestamp": int(timestamp.timestamp() * 1000),
+                                "price": price,
+                                "volume": float(pair.get("volume", {}).get("h24", 0)) / 24  # Approximate hourly volume
+                            })
+                        
+                        return {
+                            "data": chart_data,
+                            "current_price": current_price,
+                            "price_change_24h": h24_change,
+                            "volume_24h": float(pair.get("volume", {}).get("h24", 0)),
+                            "pair_address": pair.get("pairAddress"),
+                            "dex": pair.get("dexId")
+                        }
+                
+                logger.warning(f"No pairs found for token {token_address} on DexScreener")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error fetching price chart from DexScreener: {e}")
+            return None
+    
     async def close(self):
         """Close the RPC client"""
         await self.client.close()
