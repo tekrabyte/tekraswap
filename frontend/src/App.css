@@ -1,34 +1,54 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+.App {
+  min-height: 100vh;
+  background-color: #020408;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+/* Wallet adapter button customization */
+.wallet-adapter-button {
+  background-color: #1D6FFF !important;
+  border-radius: 9999px !important;
+  font-family: 'Manrope', sans-serif !important;
+  font-weight: 600 !important;
+  transition: all 0.2s !important;
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+.wallet-adapter-button:hover {
+  background-color: rgba(29, 111, 255, 0.9) !important;
+  transform: scale(1.05);
 }
 
-.App-link {
-    color: #61dafb;
+.wallet-adapter-button:active {
+  transform: scale(0.95);
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+.wallet-adapter-modal-wrapper {
+  background-color: rgba(11, 12, 18, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+.wallet-adapter-modal {
+  background-color: #0B0C12 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 24px !important;
+}
+
+.wallet-adapter-modal-title {
+  color: #ffffff !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+}
+
+.wallet-adapter-modal-list {
+  background-color: transparent !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 16px !important;
+  margin-bottom: 8px !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: #1D6FFF !important;
 }
