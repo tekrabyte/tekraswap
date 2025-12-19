@@ -254,6 +254,120 @@ class TokenService:
             logger.error(f"Error fetching balance: {e}")
             return {"balance": 0, "uiAmount": 0, "decimals": 0}
 
+    async def get_wallet_portfolio(self, wallet_address: str) -> Dict:
+        """
+        Mendapatkan portfolio lengkap wallet termasuk semua token dan total balance USD.
+        """
+        try:
+            if not wallet_address or len(wallet_address) < 30:
+                return {"total_usd": 0, "tokens": [], "error": "Invalid wallet address"}
+            
+            pubkey = Pubkey.from_string(wallet_address)
+            portfolio_tokens = []
+            total_value_usd = 0
+            
+            # 1. Ambil SOL Balance
+            try:
+                sol_balance_resp = await self.client.get_balance(pubkey)
+                sol_balance = (sol_balance_resp.value or 0) / 1e9
+                
+                if sol_balance > 0:
+                    sol_metadata = await self.get_token_metadata(SOL_MINT)
+                    sol_price = sol_metadata.get("price_per_token", 0)
+                    sol_value = sol_balance * sol_price
+                    
+                    portfolio_tokens.append({
+                        "address": SOL_MINT,
+                        "symbol": "SOL",
+                        "name": "Solana",
+                        "balance": sol_balance,
+                        "decimals": 9,
+                        "price_usd": sol_price,
+                        "value_usd": sol_value,
+                        "logoURI": sol_metadata.get("logoURI"),
+                        "volume_24h": sol_metadata.get("volume_24h", 0),
+                        "market_cap": sol_metadata.get("market_cap", 0)
+                    })
+                    total_value_usd += sol_value
+            except Exception as e:
+                logger.error(f"Error fetching SOL balance: {e}")
+            
+            # 2. Ambil semua SPL Token Accounts
+            try:
+                # Get all token accounts owned by wallet
+                token_accounts = await self.client.get_token_accounts_by_owner(
+                    pubkey,
+                    TokenAccountOpts(encoding="jsonParsed")
+                )
+                
+                # Process each token account
+                for account in token_accounts.value:
+                    try:
+                        acc_data = account.account.data
+                        parsed_data = acc_data.parsed if hasattr(acc_data, 'parsed') else acc_data
+                        
+                        if isinstance(parsed_data, dict):
+                            info = parsed_data['info']
+                        else:
+                            info = parsed_data.info
+                        
+                        mint = info['mint']
+                        token_amount = info['tokenAmount']
+                        balance = float(token_amount['uiAmount'] or 0)
+                        
+                        # Skip jika balance = 0
+                        if balance <= 0:
+                            continue
+                        
+                        # Ambil metadata + harga
+                        metadata = await self.get_token_metadata(mint)
+                        price = metadata.get("price_per_token", 0)
+                        value = balance * price
+                        
+                        portfolio_tokens.append({
+                            "address": mint,
+                            "symbol": metadata.get("symbol", "UNK"),
+                            "name": metadata.get("name", "Unknown"),
+                            "balance": balance,
+                            "decimals": int(token_amount['decimals']),
+                            "price_usd": price,
+                            "value_usd": value,
+                            "logoURI": metadata.get("logoURI"),
+                            "volume_24h": metadata.get("volume_24h", 0),
+                            "market_cap": metadata.get("market_cap", 0)
+                        })
+                        
+                        # Tambahkan ke total BAHKAN jika price = 0
+                        # Karena user mau "sekecil apapun"
+                        total_value_usd += value
+                        
+                    except Exception as e:
+                        logger.error(f"Error processing token account: {e}")
+                        continue
+                        
+            except Exception as e:
+                logger.error(f"Error fetching token accounts: {e}")
+            
+            # 3. Sort by value (terbesar dulu)
+            portfolio_tokens.sort(key=lambda x: x["value_usd"], reverse=True)
+            
+            return {
+                "wallet": wallet_address,
+                "total_usd": total_value_usd,
+                "token_count": len(portfolio_tokens),
+                "tokens": portfolio_tokens
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in get_wallet_portfolio: {e}")
+            return {
+                "wallet": wallet_address,
+                "total_usd": 0,
+                "token_count": 0,
+                "tokens": [],
+                "error": str(e)
+            }
+
     async def get_token_price_chart(self, token_address: str, interval: str) -> Optional[Dict]:
         """
         Ambil Chart REAL dari GeckoTerminal menggunakan Pair Address dari DexScreener.
