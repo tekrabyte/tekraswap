@@ -1,48 +1,53 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
-
-const CurrencyContext = createContext();
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-export function CurrencyProvider({ children }) {
-  const [currency, setCurrency] = useState('USD'); // 'USD' atau 'IDR'
-  const [exchangeRate, setExchangeRate] = useState(15800); // Default rate
-  const [rateInfo, setRateInfo] = useState(null);
-  const [loading, setLoading] = useState(false);
+const CurrencyContext = createContext();
 
-  // Fetch exchange rate saat component mount dan setiap 1 jam
+export const useCurrency = () => {
+  const context = useContext(CurrencyContext);
+  if (!context) {
+    throw new Error('useCurrency must be used within CurrencyProvider');
+  }
+  return context;
+};
+
+export const CurrencyProvider = ({ children }) => {
+  const [currency, setCurrency] = useState('USD'); // 'USD' or 'IDR'
+  const [exchangeRate, setExchangeRate] = useState(15800); // Fallback rate
+  const [rateLoading, setRateLoading] = useState(false);
+  const [rateSource, setRateSource] = useState('fallback');
+  const [lastUpdate, setLastUpdate] = useState(null);
+
+  // Fetch exchange rate on mount and every hour
   useEffect(() => {
     fetchExchangeRate();
     
-    // Auto-refresh setiap 1 jam
+    // Auto-refresh every hour
     const interval = setInterval(() => {
-      fetchExchangeRate();
+      fetchExchangeRate(true); // Silent refresh
     }, 3600000); // 1 hour
     
     return () => clearInterval(interval);
   }, []);
 
-  const fetchExchangeRate = async () => {
-    setLoading(true);
+  const fetchExchangeRate = async (silent = false) => {
+    if (!silent) setRateLoading(true);
+    
     try {
       const response = await axios.get(`${API}/exchange-rate`);
       const data = response.data;
       
       setExchangeRate(data.rate);
-      setRateInfo({
-        rate: data.rate,
-        lastUpdate: data.last_update,
-        source: data.source,
-      });
-      
-      console.log(`Exchange rate updated: 1 USD = ${data.rate} IDR (${data.source})`);
+      setRateSource(data.source);
+      setLastUpdate(new Date(data.last_update));
     } catch (error) {
-      console.error('Failed to fetch exchange rate:', error);
-      // Keep default rate jika gagal
+      console.error('Error fetching exchange rate:', error);
+      // Keep fallback rate
     } finally {
-      setLoading(false);
+      if (!silent) setRateLoading(false);
     }
   };
 
@@ -50,9 +55,9 @@ export function CurrencyProvider({ children }) {
     setCurrency(prev => prev === 'USD' ? 'IDR' : 'USD');
   };
 
-  const convertUsdToIdr = (usdAmount) => {
+  const convertToCurrentCurrency = (usdAmount) => {
     if (!usdAmount) return 0;
-    return usdAmount * exchangeRate;
+    return currency === 'USD' ? usdAmount : usdAmount * exchangeRate;
   };
 
   const value = {
@@ -60,10 +65,11 @@ export function CurrencyProvider({ children }) {
     setCurrency,
     toggleCurrency,
     exchangeRate,
-    rateInfo,
-    loading,
-    convertUsdToIdr,
-    refreshRate: fetchExchangeRate,
+    rateLoading,
+    rateSource,
+    lastUpdate,
+    fetchExchangeRate,
+    convertToCurrentCurrency,
   };
 
   return (
@@ -71,12 +77,4 @@ export function CurrencyProvider({ children }) {
       {children}
     </CurrencyContext.Provider>
   );
-}
-
-export function useCurrency() {
-  const context = useContext(CurrencyContext);
-  if (!context) {
-    throw new Error('useCurrency must be used within CurrencyProvider');
-  }
-  return context;
-}
+};
