@@ -192,8 +192,8 @@ async def swap_jupiter(request: SwapRequest):
     """Jupiter Aggregator swap implementation"""
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
-            # Get quote from Jupiter API v6
-            quote_url = "https://quote-api.jup.ag/v6/quote"
+            # Get quote from Jupiter API v6 (using new endpoint)
+            quote_url = "https://lite-api.jup.ag/v6/quote"
             params = {
                 "inputMint": request.inputMint,
                 "outputMint": request.outputMint,
@@ -209,7 +209,7 @@ async def swap_jupiter(request: SwapRequest):
                 raise Exception(f"Jupiter quote error: {quote_data['error']}")
 
             # Build swap transaction
-            swap_url = "https://quote-api.jup.ag/v6/swap"
+            swap_url = "https://lite-api.jup.ag/v6/swap"
             swap_payload = {
                 "quoteResponse": quote_data,
                 "userPublicKey": request.userPublicKey,
