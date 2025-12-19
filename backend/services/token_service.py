@@ -14,7 +14,7 @@ class TokenService:
     """Service for token-related operations using Helius RPC"""
     
     def __init__(self):
-        self.helius_rpc_url = os.environ.get('HELIUS_RPC_URL')
+        self.helius_rpc_url = os.environ.get('https://mainnet.helius-rpc.com/?api-key=c85bff04-bd73-403e-9ac8-9c949eb1b26c')
         if not self.helius_rpc_url:
             raise ValueError("HELIUS_RPC_URL not set in environment")
         self.client = AsyncClient(self.helius_rpc_url, commitment=Confirmed)
@@ -30,17 +30,17 @@ class TokenService:
             },
             {
                 "address": "4ymWDE5kwxZ5rxN3mWLvJEBHESbZSiqBuvWmSVcGqZdj",
-                "symbol": "TOKEN1",
-                "name": "User Token 1",
+                "symbol": "TEKRA",
+                "name": "TekraByte (Offcial)",
                 "decimals": 9,
-                "logoURI": None
+                "logoURI": "https://tekrabyte.com/crypto/meme_tekrabyte/logo.png"
             },
             {
                 "address": "FShCGqGUWRZkqovteJBGegUJAcjRzHZiBmHYGgSqpump",
-                "symbol": "TOKEN2", 
-                "name": "User Token 2",
+                "symbol": "TEKRA", 
+                "name": "TekraByte (MemeCoin)",
                 "decimals": 9,
-                "logoURI": None
+                "logoURI": "https://tekrabyte.com/crypto/meme_tekrabyte/logo.png"
             },
             {
                 "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
