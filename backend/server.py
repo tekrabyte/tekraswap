@@ -120,6 +120,19 @@ async def token_balance(wallet: str, token_mint: str): # Hapus validasi ketat qu
     return await service.get_token_balance(wallet, token_mint)
 
 # ======================================================
+# WALLET PORTFOLIO (Total Balance + All Tokens)
+# ======================================================
+@api_router.get("/wallet-portfolio")
+async def wallet_portfolio(wallet: str):
+    """
+    Mendapatkan total balance wallet dalam USD + breakdown semua token.
+    Menghitung: balance × price untuk setiap token, termasuk yang harganya 0.
+    """
+    logger.info(f"Portfolio request for wallet: {wallet}")
+    service = get_token_service()
+    return await service.get_wallet_portfolio(wallet)
+
+# ======================================================
 # PRICE CHART
 # ======================================================
 @api_router.get("/price-chart")
