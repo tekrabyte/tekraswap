@@ -95,7 +95,26 @@ class TokenService:
             }
         }
 
-    async def get_token_list(self) -> List[Dict]:
+    async def get_token_list(self) -> List[Dict[str, Any]]:
+        """Get list of default/popular tokens.
+        
+        Returns a list of pre-configured popular tokens with their metadata.
+        This is used for token selection UI and quick access to common tokens.
+        
+        Returns:
+            List of token dictionaries containing:
+            - address: Token mint address
+            - symbol: Token symbol (e.g., "SOL", "USDC")
+            - name: Full token name
+            - decimals: Number of decimal places
+            - logoURI: URL to token logo image
+        
+        Examples:
+            >>> service = TokenService()
+            >>> tokens = await service.get_token_list()
+            >>> print(tokens[0]['symbol'])
+            'SOL'
+        """
         return list(self.default_tokens.values())
 
     async def _fetch_dexscreener_data(self, token_address: str) -> Optional[Dict]:
