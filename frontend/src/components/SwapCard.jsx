@@ -8,6 +8,8 @@ import { ArrowRightLeft, Loader2, Settings, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
 import { TokenSelectDialog } from "@/components/TokenSelectDialog";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { formatPrice, formatPriceWithCurrency, formatIDR } from "@/utils/formatNumber";
 
 // Setup API URL
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
