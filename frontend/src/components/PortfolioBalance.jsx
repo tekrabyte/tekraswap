@@ -15,6 +15,7 @@ const API = `${BACKEND_URL}/api`;
 
 export function PortfolioBalance({ compact = false, autoRefresh = true }) {
   const { publicKey, connected } = useWallet();
+  const { currency, exchangeRate } = useCurrency();
   const [portfolio, setPortfolio] = useState({
     total_usd: 0,
     token_count: 0,
