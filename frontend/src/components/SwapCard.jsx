@@ -33,6 +33,7 @@ const DEFAULT_OUTPUT_TOKEN = {
 
 export function SwapCard() {
   const { publicKey, sendTransaction, connected } = useWallet();
+  const { currency, exchangeRate } = useCurrency();
   
   // State Token
   const [inputToken, setInputToken] = useState(DEFAULT_INPUT_TOKEN);
