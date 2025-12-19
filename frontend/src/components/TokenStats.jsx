@@ -9,10 +9,11 @@ const API = `${BACKEND_URL}/api`;
 const TARGET_TOKEN = "4ymWDE5kwxZ5rxN3mWLvJEBHESbZSiqBuvWmSVcGqZdj";
 
 export function TokenStats() {
+  // 1. State awal dengan nilai default angka 0 (bukan null/undefined)
   const [stats, setStats] = useState({
-    price_usd: 0.0,
-    volume_24h: 0.0,
-    market_cap: 0.0,
+    price_usd: 0,
+    volume_24h: 0,
+    market_cap: 0,
   });
 
   useEffect(() => {
@@ -21,31 +22,56 @@ export function TokenStats() {
 
   const fetchTokenStats = async () => {
     try {
+      // Cek apakah URL backend sudah benar
+      console.log("Fetching stats from:", `${API}/token-info?address=${TARGET_TOKEN}`);
+      
       const response = await axios.get(`${API}/token-info`, {
         params: { address: TARGET_TOKEN },
       });
-      setStats(response.data);
+
+      const data = response.data || {};
+      console.log("Data received:", data);
+
+      // 2. MAPPING DATA (KUNCI PERBAIKAN)
+      // Kita ambil data dari berbagai kemungkinan nama key yang dikirim backend
+      // Jika kosong, kita paksa jadi angka 0
+      setStats({
+        price_usd: Number(data.price_usd || data.price_per_token || 0),
+        volume_24h: Number(data.volume_24h || data.volume || 0),
+        market_cap: Number(data.market_cap || data.fdv || 0),
+      });
+
     } catch (error) {
       console.error("Token stats error:", error);
+      // Jika error, biarkan state tetap 0, jangan buat crash
     }
+  };
+
+  // 3. HELPER AMAN UNTUK FORMAT ANGKA
+  // Fungsi ini menjamin .toFixed() tidak akan dipanggil pada null/undefined
+  const safeFormat = (num, decimals = 2) => {
+    const n = Number(num);
+    if (isNaN(n) || n === 0) return "0.00"; // Tampilkan 0.00 jika data tidak valid
+    return n.toFixed(decimals);
   };
 
   const statItems = [
     {
       label: "Price",
-      value: `$${stats.price_usd.toFixed(6)}`,
+      // Gunakan helper safeFormat
+      value: `$${safeFormat(stats.price_usd, 6)}`,
       icon: Coins,
       testId: "price-stat",
     },
     {
       label: "24h Volume",
-      value: `$${(stats.volume_24h / 1000).toFixed(1)}K`,
+      value: `$${safeFormat(stats.volume_24h / 1000, 1)}K`,
       icon: Activity,
       testId: "volume-stat",
     },
     {
       label: "Market Cap",
-      value: `$${(stats.market_cap / 1000000).toFixed(1)}M`,
+      value: `$${safeFormat(stats.market_cap / 1000000, 1)}M`,
       icon: TrendingUp,
       testId: "market-cap-stat",
     },

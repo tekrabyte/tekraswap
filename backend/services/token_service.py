@@ -1,119 +1,142 @@
 import os
 import httpx
 import logging
-import random
-from datetime import datetime, timedelta, timezone
+import asyncio
+from datetime import datetime, timezone
 from typing import Optional, Dict, List
 
 # LIBRARY SOLANA PENTING
 from solders.pubkey import Pubkey
 from solana.rpc.async_api import AsyncClient
 from solana.rpc.commitment import Confirmed
-from solana.rpc.types import TokenAccountOpts  # <--- WAJIB ADA UNTUK BACA SALDO
+from solana.rpc.types import TokenAccountOpts
 
 logger = logging.getLogger(__name__)
 
+SOL_MINT = "So11111111111111111111111111111111111111112"
+
 class TokenService:
     def __init__(self):
-        # Gunakan RPC URL dari env, atau fallback ke public node jika kosong
+        # Gunakan RPC URL dari env, atau fallback ke public node
         self.helius_rpc_url = os.environ.get('HELIUS_RPC_URL')
         if not self.helius_rpc_url:
-            self.helius_rpc_url = "https://api.mainnet-beta.solana.com" # Public Node
-            logger.warning("HELIUS_RPC_URL tidak sett, menggunakan Public Node (Mungkin lambat)")
+            self.helius_rpc_url = "https://api.mainnet-beta.solana.com"
+            logger.warning("HELIUS_RPC_URL tidak sett, menggunakan Public Node")
 
         self.client = AsyncClient(self.helius_rpc_url, commitment=Confirmed)
         
-        # Daftar Token Default (Agar data muncul instan untuk token populer)
-        self.default_tokens = [
-            {
-                "address": "So11111111111111111111111111111111111111112",
+        # Daftar Token Default (Hanya untuk Metadata Statis: Nama, Symbol, Logo)
+        self.default_tokens = {
+            SOL_MINT: {
+                "address": SOL_MINT,
                 "symbol": "SOL",
                 "name": "Solana",
                 "decimals": 9,
                 "logoURI": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
-                "price_per_token": 0
             },
-            {
+            "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": {
                 "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
                 "symbol": "USDC",
                 "name": "USD Coin",
                 "decimals": 6,
                 "logoURI": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png",
-                "price_per_token": 1.0
             }
-        ]
+        }
 
     async def get_token_list(self) -> List[Dict]:
-        return self.default_tokens
+        return list(self.default_tokens.values())
 
-    async def get_token_metadata(self, token_address: str) -> Dict:
-        """Strategi: Cek Default -> Cek DexScreener (Cepat) -> Cek Helius (Lengkap) -> Fallback"""
-        
-        # 1. Cek Default List
-        for token in self.default_tokens:
-            if token["address"] == token_address:
-                return token
-
-        # 2. Cek DexScreener (Paling cepat & data market lengkap)
+    async def _fetch_dexscreener_data(self, token_address: str) -> Optional[Dict]:
+        """Helper untuk mengambil data real-time dari DexScreener"""
         try:
-            async with httpx.AsyncClient(timeout=3.0) as http_client:
-                response = await http_client.get(f"https://api.dexscreener.com/latest/dex/tokens/{token_address}")
+            async with httpx.AsyncClient(timeout=5.0) as http_client:
+                url = f"https://api.dexscreener.com/latest/dex/tokens/{token_address}"
+                response = await http_client.get(url)
+                
                 if response.status_code == 200:
                     data = response.json()
                     if data.get("pairs"):
-                        pair = data["pairs"][0]
-                        base = pair.get("baseToken", {})
-                        if base.get("address") == token_address:
-                            return {
-                                "address": token_address,
-                                "name": base.get("name", "Unknown Token"),
-                                "symbol": base.get("symbol", "UNK"),
-                                "decimals": 9, 
-                                "logoURI": pair.get("info", {}).get("imageUrl"),
-                                "supply": 0,
-                                "price_per_token": float(pair.get("priceUsd", 0)),
-                                "market_cap": pair.get("fdv", 0)
-                            }
-        except Exception:
-            pass # Lanjut ke Helius jika DexScreener gagal
-
-        # 3. Cek Helius / RPC (Fallback)
-        try:
-            # Note: Method 'getAsset' hanya jalan di Helius/DAS API, bukan node biasa
-            async with httpx.AsyncClient(timeout=3.0) as http_client:
-                response = await http_client.post(
-                    self.helius_rpc_url,
-                    json={
-                        "jsonrpc": "2.0", "id": "metadata", "method": "getAsset", 
-                        "params": {"id": token_address}
-                    }
-                )
-                if response.status_code == 200:
-                    data = response.json()
-                    if "result" in data:
-                        res = data["result"]
-                        content = res.get("content", {})
-                        token_info = res.get("token_info", {})
+                        # Ambil pair dengan likuiditas tertinggi
+                        # Filter pair yang di Solana saja
+                        pairs = [p for p in data["pairs"] if p.get("chainId") == "solana"]
+                        if not pairs:
+                            return None
+                            
+                        pair = pairs[0] # Pair terbesar
                         return {
-                            "address": token_address,
-                            "name": content.get("metadata", {}).get("name", "Unknown"),
-                            "symbol": content.get("metadata", {}).get("symbol", "UNK"),
-                            "decimals": token_info.get("decimals", 9),
-                            "logoURI": content.get("links", {}).get("image"),
-                            "price_per_token": token_info.get("price_info", {}).get("price_per_token", 0)
+                            "price_usd": float(pair.get("priceUsd", 0)),
+                            "volume_24h": float(pair.get("volume", {}).get("h24", 0)),
+                            "market_cap": float(pair.get("fdv", 0) or pair.get("marketCap", 0)),
+                            "pair_address": pair.get("pairAddress"), # PENTING UNTUK CHART
+                            "pair_info": pair
                         }
         except Exception as e:
-            logger.error(f"Metadata RPC error: {e}")
+            logger.warning(f"DexScreener fetch failed for {token_address}: {e}")
+        return None
 
-        # 4. Final Fallback (Agar UI tidak crash)
-        return {
+    async def get_token_metadata(self, token_address: str) -> Dict:
+        """
+        Menggabungkan Metadata Statis (Nama/Logo) dengan Data Dinamis (Harga).
+        """
+        # 1. Siapkan Metadata Dasar
+        metadata = {
             "address": token_address,
-            "name": f"Token {token_address[:4]}...",
-            "symbol": "UNKNOWN",
+            "name": "Unknown Token",
+            "symbol": "UNK",
             "decimals": 9,
             "logoURI": None,
-            "price_per_token": 0
+            "price_per_token": 0,
+            "volume_24h": 0,
+            "market_cap": 0
         }
+
+        # Cek default list
+        if token_address in self.default_tokens:
+            metadata.update(self.default_tokens[token_address])
+
+        # 2. Ambil Harga Real-time (DexScreener)
+        market_data = await self._fetch_dexscreener_data(token_address)
+
+        if market_data:
+            metadata["price_per_token"] = market_data["price_usd"]
+            metadata["volume_24h"] = market_data["volume_24h"]
+            metadata["market_cap"] = market_data["market_cap"]
+            
+            # Isi nama/symbol jika masih UNK
+            if metadata["symbol"] == "UNK":
+                pair = market_data["pair_info"]
+                base = pair.get("baseToken", {})
+                metadata["name"] = base.get("name", "Unknown")
+                metadata["symbol"] = base.get("symbol", "UNK")
+                metadata["logoURI"] = pair.get("info", {}).get("imageUrl")
+                
+            return metadata
+
+        # 3. Fallback ke RPC Helius (Metadata Only)
+        if metadata["symbol"] == "UNK":
+            try:
+                async with httpx.AsyncClient(timeout=3.0) as http_client:
+                    response = await http_client.post(
+                        self.helius_rpc_url,
+                        json={
+                            "jsonrpc": "2.0", "id": "metadata", 
+                            "method": "getAsset", "params": {"id": token_address}
+                        }
+                    )
+                    if response.status_code == 200:
+                        data = response.json()
+                        if "result" in data:
+                            content = data["result"].get("content", {})
+                            token_info = data["result"].get("token_info", {})
+                            
+                            metadata["name"] = content.get("metadata", {}).get("name", "Unknown")
+                            metadata["symbol"] = content.get("metadata", {}).get("symbol", "UNK")
+                            metadata["decimals"] = token_info.get("decimals", 9)
+                            metadata["logoURI"] = content.get("links", {}).get("image")
+            except Exception:
+                pass
+
+        return metadata
 
     async def get_token_balance(self, wallet: str, mint: str):
         """Mendapatkan saldo token dengan parsing JSON yang benar"""
@@ -123,7 +146,7 @@ class TokenService:
             pubkey = Pubkey.from_string(wallet)
 
             # KASUS A: Token Native (SOL)
-            if mint == "So11111111111111111111111111111111111111112": 
+            if mint == SOL_MINT: 
                 bal = await self.client.get_balance(pubkey)
                 val = bal.value or 0
                 return {
@@ -132,22 +155,26 @@ class TokenService:
                     "decimals": 9
                 }
             
-            # KASUS B: Token SPL (USDC, TEKRA, dll)
+            # KASUS B: Token SPL
             mint_pubkey = Pubkey.from_string(mint)
-            
-            # --- FIX UTAMA: encoding="jsonParsed" ---
             resp = await self.client.get_token_accounts_by_owner(
                 pubkey, 
                 TokenAccountOpts(mint=mint_pubkey, encoding="jsonParsed")
             )
             
             if resp.value:
-                # Ambil data akun pertama
-                data = resp.value[0].account.data.parsed['info']['tokenAmount']
+                acc_data = resp.value[0].account.data
+                parsed_data = acc_data.parsed if hasattr(acc_data, 'parsed') else acc_data
+                
+                if isinstance(parsed_data, dict):
+                    amount_info = parsed_data['info']['tokenAmount']
+                else:
+                    amount_info = parsed_data.info['tokenAmount']
+
                 return {
-                    "balance": float(data['amount']),      # Raw
-                    "uiAmount": float(data['uiAmount']),   # Readable (e.g. 10.5)
-                    "decimals": int(data['decimals'])
+                    "balance": float(amount_info['amount']),
+                    "uiAmount": float(amount_info['uiAmount']),
+                    "decimals": int(amount_info['decimals'])
                 }
             
             return {"balance": 0, "uiAmount": 0, "decimals": 0}
@@ -157,44 +184,65 @@ class TokenService:
             return {"balance": 0, "uiAmount": 0, "decimals": 0}
 
     async def get_token_price_chart(self, token_address: str, interval: str) -> Optional[Dict]:
-        """Ambil chart dari DexScreener, atau buat Mock Data jika kosong"""
-        price = 0.1
+        """
+        Ambil Chart REAL dari GeckoTerminal menggunakan Pair Address dari DexScreener.
+        TIDAK ADA LAGI MOCK DATA.
+        """
+        # 1. Cari Pair Address dulu di DexScreener
+        market_data = await self._fetch_dexscreener_data(token_address)
         
-        # 1. Coba ambil harga Real
+        if not market_data or not market_data.get("pair_address"):
+            logger.warning(f"No pair found for chart: {token_address}")
+            return {"data": [], "current_price": 0, "mock": False}
+
+        current_price = market_data["price_usd"]
+        pair_address = market_data["pair_address"]
+
+        # 2. Fetch Candle Data dari GeckoTerminal (Gratis & Public)
+        # Mapping interval: '1h' -> 'hour', '1d' -> 'day'
+        gt_timeframe = "hour" if interval == "1h" else "day"
+        limit = 24 if interval == "1h" else 30
+
         try:
-            async with httpx.AsyncClient(timeout=4.0) as client:
-                resp = await client.get(f"https://api.dexscreener.com/latest/dex/tokens/{token_address}")
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                # API GeckoTerminal untuk Solana
+                url = f"https://api.geckoterminal.com/api/v2/networks/solana/pools/{pair_address}/ohlcv/{gt_timeframe}"
+                
+                resp = await client.get(url, params={"limit": limit})
+                
                 if resp.status_code == 200:
                     data = resp.json()
-                    if data.get("pairs"):
-                        price = float(data["pairs"][0].get("priceUsd", 0))
-        except:
-            pass
+                    # Format GeckoTerminal: [time, open, high, low, close, volume]
+                    ohlcv_list = data.get("data", {}).get("attributes", {}).get("ohlcv_list", [])
+                    
+                    chart_data = []
+                    for item in ohlcv_list:
+                        # item = [timestamp, open, high, low, close, volume]
+                        chart_data.append({
+                            "timestamp": int(item[0]) * 1000, # Convert ke ms
+                            "price": float(item[4]),          # Close price
+                            "volume": float(item[5])
+                        })
+                    
+                    # Sort biar urut dari lama ke baru (kadang API return terbalik)
+                    chart_data.sort(key=lambda x: x["timestamp"])
 
-        # 2. Buat Data Chart (Mock) agar Frontend tidak blank
-        # Kita generate 24 titik data (1 hari) di sekitar harga asli
-        now = datetime.now(timezone.utc)
-        chart_data = []
-        
-        # Jika harga 0 (token baru/scam), set dummy price kecil
-        base_price = price if price > 0 else 0.001 
-        
-        for i in range(24):
-            ts = now - timedelta(hours=24-i)
-            # Random movement +/- 3%
-            random_var = random.uniform(0.97, 1.03)
-            val = base_price * random_var
-            
-            chart_data.append({
-                "timestamp": int(ts.timestamp() * 1000),
-                "price": val,
-                "volume": random.uniform(1000, 50000)
-            })
-        
+                    return {
+                        "data": chart_data,
+                        "current_price": current_price,
+                        "mock": False # Real Data!
+                    }
+                else:
+                    logger.error(f"GeckoTerminal Error: {resp.status_code} - {resp.text}")
+
+        except Exception as e:
+            logger.error(f"Chart fetch error: {e}")
+
+        # Jika gagal fetch chart, return kosong (jangan mock biar user tau errornya)
         return {
-            "data": chart_data,
-            "current_price": base_price,
-            "mock": True # Flag untuk frontend tau ini data estimasi
+            "data": [],
+            "current_price": current_price,
+            "mock": False
         }
 
 # Singleton Instance

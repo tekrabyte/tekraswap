@@ -22,11 +22,11 @@ const DEFAULT_INPUT_TOKEN = {
 };
 
 const DEFAULT_OUTPUT_TOKEN = {
-  address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // Ganti default ke USDC dulu biar pasti ada harga
-  symbol: "USDC",
-  name: "USD Coin",
-  decimals: 6,
-  logoURI: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png"
+  address: "FShCGqGUWRZkqovteJBGegUJAcjRzHZiBmHYGgSqpump", // Ganti default ke USDC dulu biar pasti ada harga
+  symbol: "TEKRA",
+  name: "TekraByte (MemeCoin)",
+  decimals: 9,
+  logoURI: "https://tekrabyte.com/crypto/meme_tekrabyte/logo.png"
 };
 
 export function SwapCard() {
