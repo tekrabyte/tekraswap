@@ -69,22 +69,22 @@ export function TokenStats() {
   const statItems = [
     {
       label: "Price",
-      // FIXED: Gunakan formatPrice utility untuk menghindari scientific notation
-      value: formatPrice(stats.price_usd),
+      // FIXED: Gunakan formatCurrency dengan currency context
+      value: formatCurrency(stats.price_usd, currency, exchangeRate),
       icon: Coins,
       testId: "price-stat",
     },
     {
       label: "24h Volume",
-      // FIXED: Gunakan formatLargeNumber untuk format K/M/B
-      value: formatLargeNumber(stats.volume_24h, { showDollarSign: true, decimals: 2 }),
+      // FIXED: Gunakan formatLargeCurrency dengan currency context
+      value: formatLargeCurrency(stats.volume_24h, currency, exchangeRate),
       icon: Activity,
       testId: "volume-stat",
     },
     {
       label: "Market Cap",
-      // FIXED: Gunakan formatLargeNumber untuk format K/M/B
-      value: formatLargeNumber(stats.market_cap, { showDollarSign: true, decimals: 2 }),
+      // FIXED: Gunakan formatLargeCurrency dengan currency context
+      value: formatLargeCurrency(stats.market_cap, currency, exchangeRate),
       icon: TrendingUp,
       testId: "market-cap-stat",
     },
