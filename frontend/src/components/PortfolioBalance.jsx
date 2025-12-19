@@ -215,10 +215,10 @@ export function PortfolioBalance({ compact = false, autoRefresh = true }) {
                         {formatTokenBalance(token.balance, token.decimals)} {token.symbol}
                       </div>
                       <div className="text-sm text-white/60">
-                        {formatUSD(token.value_usd)}
+                        {formatCurrency(token.value_usd, currency, exchangeRate, { useShortFormat: true })}
                       </div>
                       <div className="text-xs text-white/40">
-                        @ {formatPrice(token.price_usd)}
+                        @ {formatCurrency(token.price_usd, currency, exchangeRate)}
                       </div>
                     </div>
                   </div>
