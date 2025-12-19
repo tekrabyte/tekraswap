@@ -119,24 +119,32 @@ export function PortfolioBalance({ compact = false, autoRefresh = true }) {
               <Wallet className="h-6 w-6" />
               Portfolio Balance
             </CardTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => fetchPortfolio()}
-              disabled={loading}
-              className="text-white/60 hover:text-white"
-            >
-              <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-            </Button>
+            <div className="flex items-center gap-2">
+              <CurrencyToggle compact={true} showRefresh={false} />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => fetchPortfolio()}
+                disabled={loading}
+                className="text-white/60 hover:text-white"
+              >
+                <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
-              <div className="text-sm text-white/60 uppercase tracking-wider mb-1">Total Value</div>
+              <div className="text-sm text-white/60 uppercase tracking-wider mb-1">Total Value ({currency})</div>
               <div className="text-5xl font-bold text-white font-mono tracking-tight">
-                {formatUSD(portfolio.total_usd)}
+                {formatCurrency(portfolio.total_usd, currency, exchangeRate, { useShortFormat: false })}
               </div>
+              {currency === 'IDR' && (
+                <div className="text-sm text-white/40 mt-1">
+                  ≈ {formatUSD(portfolio.total_usd)}
+                </div>
+              )}
             </div>
             
             <div className="flex gap-6 text-sm">
@@ -148,6 +156,12 @@ export function PortfolioBalance({ compact = false, autoRefresh = true }) {
                 <div>
                   <div className="text-white/50">Last Update</div>
                   <div className="text-white font-medium">{lastUpdate.toLocaleTimeString()}</div>
+                </div>
+              )}
+              {currency === 'IDR' && (
+                <div>
+                  <div className="text-white/50">Exchange Rate</div>
+                  <div className="text-white font-medium">Rp {exchangeRate.toLocaleString('id-ID')}</div>
                 </div>
               )}
             </div>
