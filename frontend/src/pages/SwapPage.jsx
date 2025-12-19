@@ -4,6 +4,7 @@ import { WalletButton } from "@/components/WalletButton";
 import { SwapCard } from "@/components/SwapCard";
 import { PriceChart } from "@/components/PriceChart";
 import { TokenStats } from "@/components/TokenStats";
+import { PortfolioBalance } from "@/components/PortfolioBalance";
 import { Zap, Home } from "lucide-react";
 import { motion } from "framer-motion";
 
