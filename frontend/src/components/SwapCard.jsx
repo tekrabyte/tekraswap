@@ -261,8 +261,8 @@ export function SwapCard() {
               {balance.uiAmount?.toFixed(4) || "0"}
             </div>
             <div className="text-xs text-white/50">
-              {/* Tampilkan Harga per Token */}
-              ≈ ${price ? price.toFixed(4) : "0.00"}
+              {/* Fix: Gunakan formatPrice untuk menghindari scientific notation */}
+              @ {formatPrice(price, { maxDecimals: 8 })}
             </div>
           </>
         ) : (
