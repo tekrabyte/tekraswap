@@ -306,6 +306,12 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "Implemented - Created PortfolioBalance component with two modes: full (Dashboard) and compact (Swap page). Shows total USD value, token count, individual token balances with prices, volume_24h, market_cap. Includes auto-refresh every 30 seconds."
+      - working: false
+        agent: "user"
+        comment: "User reported 'total token yang tersimpan tidak terbaca' - total stored tokens not readable, also price showing scientific notation"
+      - working: "NA"
+        agent: "main"
+        comment: "FIXED - Updated PortfolioBalance to use new formatNumber utilities: formatUSD() for total balance display, formatPrice() for individual token prices (no more scientific notation), formatTokenBalance() for token amounts, formatLargeNumber() for volume_24h and market_cap. All price displays now user-friendly without scientific notation."
 
   - task: "Add PortfolioBalance to Dashboard page"
     implemented: true
