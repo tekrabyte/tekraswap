@@ -12,6 +12,7 @@ const API = `${BACKEND_URL}/api`;
 const TARGET_TOKEN = "4ymWDE5kwxZ5rxN3mWLvJEBHESbZSiqBuvWmSVcGqZdj";
 
 export function TokenStats() {
+  const { currency, exchangeRate } = useCurrency();
   // 1. State awal dengan nilai default angka 0 (bukan null/undefined)
   const [stats, setStats] = useState({
     price_usd: 0,
