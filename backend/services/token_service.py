@@ -44,15 +44,15 @@ class TokenService:
             },
             {
                 "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-                "symbol": "USDC",
-                "name": "USD Coin",
+                "symbol": "SOL",
+                "name": "Solana",
                 "decimals": 6,
                 "logoURI": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png"
             },
             {
                 "address": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
-                "symbol": "USDT",
-                "name": "USDT",
+                "symbol": "SOL",
+                "name": "Solana",
                 "decimals": 6,
                 "logoURI": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB/logo.png"
             }
