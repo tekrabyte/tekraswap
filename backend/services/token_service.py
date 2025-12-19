@@ -31,7 +31,7 @@ class TokenService:
             {
                 "address": "4ymWDE5kwxZ5rxN3mWLvJEBHESbZSiqBuvWmSVcGqZdj",
                 "symbol": "TEKRA",
-                "name": "TekraByte (Offcial)",
+                "name": "TekraByte (Official)",
                 "decimals": 9,
                 "logoURI": "https://tekrabyte.com/crypto/meme_tekrabyte/logo.png"
             },
