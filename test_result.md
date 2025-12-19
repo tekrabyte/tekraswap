@@ -139,11 +139,11 @@ backend:
 
   - task: "Create token service module with Helius integration"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/services/token_service.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -151,6 +151,9 @@ backend:
       - working: "NA"
         agent: "main"
         comment: "Implemented - Created TokenService with Helius RPC integration, includes get_token_list, get_token_metadata, get_token_balance, get_multiple_token_balances, validate_token methods"
+      - working: true
+        agent: "main"
+        comment: "Fixed critical bug - changed os.environ.get('https://mainnet...') to os.environ.get('HELIUS_RPC_URL'). Service now initializes correctly."
 
   - task: "Add token list endpoint with user tokens"
     implemented: true
