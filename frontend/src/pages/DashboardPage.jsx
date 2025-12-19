@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { WalletButton } from "@/components/WalletButton";
 import { TransactionHistory } from "@/components/TransactionHistory";
 import { TokenStats } from "@/components/TokenStats";
+import { PortfolioBalance } from "@/components/PortfolioBalance";
 import { Zap, Home, ArrowRightLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
