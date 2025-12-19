@@ -121,11 +121,11 @@ user_problem_statement: |
 backend:
   - task: "Add Helius RPC integration to backend environment"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/.env"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -133,6 +133,9 @@ backend:
       - working: "NA"
         agent: "main"
         comment: "Implemented - Added HELIUS_RPC_URL to .env file"
+      - working: true
+        agent: "main"
+        comment: "Fixed bug in token_service.py - was using wrong parameter in os.environ.get(). Now reads HELIUS_RPC_URL correctly from .env"
 
   - task: "Create token service module with Helius integration"
     implemented: true
