@@ -5,7 +5,10 @@ import { Wallet, TrendingUp, Coins, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { formatPrice, formatLargeNumber, formatTokenBalance, formatUSD } from "@/utils/formatNumber";
+import { formatPrice, formatLargeNumber, formatUSD } from "@/utils/formatNumber";
+import { formatCurrency, formatLargeCurrency, formatTokenBalance } from "@/utils/formatCurrency";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { CurrencyToggle } from "@/components/CurrencyToggle";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
