@@ -14,7 +14,7 @@ class TokenService:
     """Service for token-related operations using Helius RPC"""
     
     def __init__(self):
-        self.helius_rpc_url = os.environ.get('https://mainnet.helius-rpc.com/?api-key=chart-token-problem')
+        self.helius_rpc_url = os.environ.get('HELIUS_RPC_URL')
         if not self.helius_rpc_url:
             raise ValueError("HELIUS_RPC_URL not set in environment")
         self.client = AsyncClient(self.helius_rpc_url, commitment=Confirmed)
