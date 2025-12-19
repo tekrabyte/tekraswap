@@ -151,7 +151,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="relative z-10 p-6 md:p-12 mt-20 border-t border-white/5">
         <div className="max-w-7xl mx-auto text-center text-white/40 text-sm font-mono">
-          © 2025 TokenSwap. Built on Solana.
+          © 2025 TekrabyteSwap. Built on Solana.
         </div>
       </footer>
     </div>
