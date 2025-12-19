@@ -121,6 +121,44 @@ async def token_balance(wallet: str, token_mint: str): # Hapus validasi ketat qu
     return await service.get_token_balance(wallet, token_mint)
 
 # ======================================================
+# VALIDATE TOKEN
+# ======================================================
+@api_router.post("/validate-token/{token_address}")
+async def validate_token(token_address: str):
+    """
+    Validate if a token address is valid and exists on Solana.
+    Used before adding custom tokens.
+    """
+    logger.info(f"Validate token request: {token_address}")
+    
+    # Basic validation - check address format
+    if not token_address or len(token_address) < 32 or len(token_address) > 44:
+        return {"valid": False, "error": "Invalid address format"}
+    
+    try:
+        # Try to get metadata - if successful, token is valid
+        service = get_token_service()
+        metadata = await service.get_token_metadata(token_address)
+        
+        # Check if we got valid metadata
+        if metadata and metadata.get("symbol") != "UNK":
+            return {
+                "valid": True,
+                "token": metadata
+            }
+        
+        # Token exists but no metadata found
+        return {
+            "valid": True,
+            "token": metadata,
+            "warning": "Token found but metadata limited"
+        }
+        
+    except Exception as e:
+        logger.error(f"Token validation error: {e}")
+        return {"valid": False, "error": str(e)}
+
+# ======================================================
 # WALLET PORTFOLIO (Total Balance + All Tokens)
 # ======================================================
 @api_router.get("/wallet-portfolio")
