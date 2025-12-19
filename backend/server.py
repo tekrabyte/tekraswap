@@ -311,7 +311,7 @@ async def get_quote(inputMint: str, outputMint: str, amount: int, slippageBps: i
     """Get swap quote from Jupiter"""
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
-            quote_url = "https://quote-api.jup.ag/v6/quote"
+            quote_url = "https://lite-api.jup.ag/v6/quote"
             params = {
                 "inputMint": inputMint,
                 "outputMint": outputMint,
