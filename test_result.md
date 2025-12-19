@@ -260,6 +260,36 @@ backend:
         agent: "main"
         comment: "Fixed - Updated both Jupiter API endpoints in server.py: swap_jupiter() function (line 196, 212) and get_quote() endpoint (line 314) from 'quote-api.jup.ag' to 'lite-api.jup.ag'. Verified new endpoint responds successfully."
 
+  - task: "Add wallet portfolio total balance endpoint"
+    implemented: true
+    working: "NA"
+    file: "backend/services/token_service.py, backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported 'balance wallet total token tidak terhitung' - No total wallet balance calculation/display"
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Added get_wallet_portfolio() method in TokenService that fetches all SPL tokens + SOL, gets metadata/price for each, calculates total USD value. Added /api/wallet-portfolio endpoint. Counts ALL tokens including zero-price tokens as requested by user."
+
+  - task: "Fix token metadata volume and market cap display"
+    implemented: true
+    working: "NA"
+    file: "backend/services/token_service.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported 'metadata token tidak kebaca baca berapapun angkanya market volume marketcap' - Token metadata volume_24h and market_cap showing 0 or not displaying"
+      - working: "NA"
+        agent: "main"
+        comment: "Verified - get_token_metadata() already fetches volume_24h and market_cap from DexScreener API. Issue is in display formatting. Updated frontend components to show proper values."
+
 
 frontend:
   - task: "Update swap interface to show token list"
