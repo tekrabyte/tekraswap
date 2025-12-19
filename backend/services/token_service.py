@@ -1,19 +1,43 @@
+"""Token Service for Solana blockchain interactions.
+
+This module provides comprehensive token management functionality including:
+- Token metadata retrieval via Helius RPC
+- Token balance queries for wallets
+- Real-time price data from DexScreener
+- Historical price charts from GeckoTerminal
+
+Integration:
+- Helius RPC: For Solana blockchain data and DAS API
+- DexScreener: For real-time token prices and market data
+- GeckoTerminal: For historical OHLCV chart data
+
+Documentation:
+- Helius: https://www.helius.dev/docs/rpc/guides/overview
+- DexScreener: https://api.dexscreener.com
+- GeckoTerminal: https://api.geckoterminal.com
+"""
+
 import os
 import httpx
 import logging
 import asyncio
 from datetime import datetime, timezone
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Any
 
-# LIBRARY SOLANA PENTING
+# Solana blockchain libraries
 from solders.pubkey import Pubkey
 from solana.rpc.async_api import AsyncClient
 from solana.rpc.commitment import Confirmed
 from solana.rpc.types import TokenAccountOpts
 
+from utils.exceptions import TokenServiceException, ExternalAPIException
+from utils.validators import validate_solana_address
+
 logger = logging.getLogger(__name__)
 
+# Native SOL token mint address
 SOL_MINT = "So11111111111111111111111111111111111111112"
+
 
 class TokenService:
     def __init__(self):
