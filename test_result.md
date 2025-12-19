@@ -365,3 +365,7 @@ agent_communication:
     message: "Jupiter API error: [Errno -5] No address associated with hostname"
   - agent: "main"
     message: "FIXED JUPITER API HOSTNAME ERROR: Updated Jupiter API endpoints from deprecated 'quote-api.jup.ag' to new 'lite-api.jup.ag' endpoint. Jupiter migrated their API infrastructure - old endpoints no longer resolve. Updated both /api/swap (swap_jupiter function) and /api/quote endpoints. Backend and frontend services restarted successfully."
+  - agent: "user"
+    message: "balance wallet total token tidak terhitung dan metadata token tidak kebaca baca berapapun angkanya market volume marketcap (wallet balance total tokens not counted and token metadata cannot be read no matter the number market volume marketcap)"
+  - agent: "main"
+    message: "IMPLEMENTING PORTFOLIO BALANCE & METADATA FIX: Added comprehensive portfolio tracking system. Backend: Created /api/wallet-portfolio endpoint in token_service.py to fetch all tokens + calculate total USD value. Frontend: Created PortfolioBalance component with auto-refresh (30s), added to Dashboard (full view) and Swap page (compact view). Updated TokenStats with proper metadata display and auto-refresh. All tokens counted including zero-price tokens as requested."
