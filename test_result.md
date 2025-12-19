@@ -175,11 +175,11 @@ backend:
 
   - task: "Add token metadata endpoint using Helius"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -187,6 +187,9 @@ backend:
       - working: "NA"
         agent: "main"
         comment: "Implemented - Added GET /api/token-metadata/{token_address} endpoint using Helius DAS API"
+      - working: true
+        agent: "main"
+        comment: "Tested via curl - successfully returns metadata for TEKRA token including name, symbol, decimals, logoURI"
 
   - task: "Add token balance endpoint"
     implemented: true
