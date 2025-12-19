@@ -92,6 +92,28 @@ class TokenService:
                 "name": "USD Coin",
                 "decimals": 6,
                 "logoURI": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png",
+            },
+            "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB": {
+                "address": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+                "symbol": "USDT",
+                "name": "USDT",
+                "decimals": 6,
+                "logoURI": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB/logo.png",
+            },
+            # User's TEKRA tokens
+            "4ymWDE5kwxZ5rxN3mWLvJEBHESbZSiqBuvWmSVcGqZdj": {
+                "address": "4ymWDE5kwxZ5rxN3mWLvJEBHESbZSiqBuvWmSVcGqZdj",
+                "symbol": "TEKRA",
+                "name": "TEKRA Token 1",
+                "decimals": 9,
+                "logoURI": None,
+            },
+            "FShCGqGUWRZkqovteJBGegUJAcjRzHZiBmHYGgSqpump": {
+                "address": "FShCGqGUWRZkqovteJBGegUJAcjRzHZiBmHYGgSqpump",
+                "symbol": "TEKRA",
+                "name": "TEKRA Token 2",
+                "decimals": 9,
+                "logoURI": None,
             }
         }
 
