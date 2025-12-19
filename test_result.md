@@ -120,76 +120,94 @@ user_problem_statement: |
 
 backend:
   - task: "Add Helius RPC integration to backend environment"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "backend/.env"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Task identified - need to add HELIUS_RPC_URL to .env"
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Added HELIUS_RPC_URL to .env file"
 
   - task: "Create token service module with Helius integration"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "backend/services/token_service.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Task identified - create service for token metadata and balance retrieval"
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Created TokenService with Helius RPC integration, includes get_token_list, get_token_metadata, get_token_balance, get_multiple_token_balances, validate_token methods"
 
   - task: "Add token list endpoint with user tokens"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Task identified - create /api/token-list endpoint"
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Added GET /api/token-list endpoint that returns user's tokens and popular tokens (SOL, USDC, USDT)"
 
   - task: "Add token metadata endpoint using Helius"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Task identified - create /api/token-metadata endpoint"
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Added GET /api/token-metadata/{token_address} endpoint using Helius DAS API"
 
   - task: "Add token balance endpoint"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Task identified - create /api/token-balance endpoint"
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Added GET /api/token-balance and POST /api/token-balances endpoints for single and multiple token balance queries"
 
   - task: "Add token validation in swap endpoints"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Task identified - validate token before executing swap"
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Added token validation in /api/swap endpoint before executing swap, also added POST /api/validate-token/{token_address} endpoint"
 
 frontend:
   - task: "Update swap interface to show token list"
