@@ -135,11 +135,20 @@ export function TokenSelectDialog({ open, onOpenChange, onSelectToken, selectedT
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <Input
-              placeholder="Cari nama atau paste address"
+              placeholder="Cari nama, symbol, atau paste address token"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white/5 border-white/10 text-white"
+              className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+              autoComplete="off"
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
           {/* Custom Token Input */}
