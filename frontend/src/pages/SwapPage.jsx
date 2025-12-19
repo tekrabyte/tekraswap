@@ -58,6 +58,16 @@ export default function SwapPage() {
             <p className="text-white/60 font-body">Trade tokens with the best rates from top DEXs</p>
           </motion.div>
 
+          {/* Compact Portfolio Balance */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.05 }}
+            className="mb-6"
+          >
+            <PortfolioBalance compact={true} autoRefresh={true} />
+          </motion.div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Swap Card - Main Focus */}
             <motion.div
