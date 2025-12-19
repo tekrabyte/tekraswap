@@ -1,6 +1,7 @@
 /**
  * Utility functions untuk format angka dengan user-friendly
  * Khususnya untuk cryptocurrency prices yang bisa sangat kecil
+ * Dengan dukungan multi-currency (USD, IDR)
  */
 
 /**
@@ -97,6 +98,74 @@ export function formatPrice(price, options = {}) {
   }
 
   return showDollarSign ? `$${formatted}` : formatted;
+}
+
+/**
+ * Format harga dalam IDR (Indonesian Rupiah)
+ * 
+ * @param {number} idrAmount - Jumlah dalam IDR
+ * @param {object} options - Opsi formatting
+ * @returns {string} Formatted IDR string
+ * 
+ * Contoh:
+ * - 15000 → "Rp 15,000"
+ * - 1500000 → "Rp 1,500,000"
+ * - 0.5 → "Rp 1" (rounded)
+ */
+export function formatIDR(idrAmount, options = {}) {
+  const {
+    showSymbol = true,
+    useShortFormat = false, // Jika true, pakai format 15K, 1.5M, dll
+  } = options;
+
+  // Handle invalid inputs
+  if (idrAmount === null || idrAmount === undefined || isNaN(idrAmount)) {
+    return showSymbol ? "Rp 0" : "0";
+  }
+
+  const numAmount = Number(idrAmount);
+
+  // Handle zero
+  if (numAmount === 0) {
+    return showSymbol ? "Rp 0" : "0";
+  }
+
+  let formatted;
+
+  // Short format dengan K/M/B suffix
+  if (useShortFormat) {
+    if (numAmount >= 1e9) {
+      formatted = (numAmount / 1e9).toFixed(2) + 'M'; // Miliar
+    } else if (numAmount >= 1e6) {
+      formatted = (numAmount / 1e6).toFixed(2) + 'Jt'; // Juta
+    } else if (numAmount >= 1e3) {
+      formatted = (numAmount / 1e3).toFixed(1) + 'K'; // Ribu
+    } else {
+      formatted = Math.round(numAmount).toString();
+    }
+  } else {
+    // Full format dengan comma separator
+    // IDR biasanya tidak pakai desimal, round ke integer
+    formatted = Math.round(numAmount).toLocaleString('id-ID');
+  }
+
+  return showSymbol ? `Rp ${formatted}` : formatted;
+}
+
+/**
+ * Format harga dengan currency support (USD atau IDR)
+ * 
+ * @param {number} usdPrice - Harga dalam USD
+ * @param {string} currency - 'USD' atau 'IDR'
+ * @param {number} exchangeRate - Rate USD to IDR (optional, default 15800)
+ * @returns {string} Formatted price in selected currency
+ */
+export function formatPriceWithCurrency(usdPrice, currency = 'USD', exchangeRate = 15800) {
+  if (currency === 'IDR') {
+    const idrPrice = usdPrice * exchangeRate;
+    return formatIDR(idrPrice, { useShortFormat: idrPrice >= 1000 });
+  }
+  return formatPrice(usdPrice);
 }
 
 /**
