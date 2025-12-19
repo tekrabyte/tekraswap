@@ -373,13 +373,21 @@ async def get_swap_history(wallet: str, limit: int = 10):
 
 @api_router.get("/price-chart")
 async def get_price_chart(token: str, interval: str = "1h"):
-    """Get price chart data for token"""
+    """Get price chart data for token from DexScreener"""
     try:
-        # Mock data for demo
-        # In production, integrate with DexScreener or Birdeye API
+        token_service = get_token_service()
+        
+        # Try to get real data from DexScreener
+        chart_data = await token_service.get_token_price_chart(token, interval)
+        
+        if chart_data:
+            return chart_data
+        
+        # Fallback to mock data if API fails or no data available
         import random
         from datetime import timedelta
         
+        logger.warning(f"Using mock data for token {token} - no real data available")
         now = datetime.now(timezone.utc)
         data = []
         base_price = 0.01
@@ -393,8 +401,15 @@ async def get_price_chart(token: str, interval: str = "1h"):
                 "volume": random.uniform(1000, 10000)
             })
         
-        return {"data": data}
+        return {
+            "data": data,
+            "current_price": base_price,
+            "price_change_24h": 0,
+            "volume_24h": 0,
+            "mock": True
+        }
     except Exception as e:
+        logger.error(f"Error in price chart endpoint: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Include the router in the main app
