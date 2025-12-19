@@ -315,10 +315,12 @@ export function SwapCard() {
                 onChange={(e) => setInputAmount(e.target.value)}
                 className="bg-transparent border-none text-2xl text-white font-mono h-14 p-0 focus-visible:ring-0 placeholder:text-white/20"
                 />
-                {/* Total USD Value */}
-                <div className="text-xs text-white/40">
-                    ≈ ${(inputAmount * inputPrice).toFixed(2)}
-                </div>
+                {/* Total Value in selected currency */}
+                {inputAmount && inputPrice > 0 && (
+                  <div className="text-xs text-white/40">
+                    ≈ {formatPriceWithCurrency(inputAmount * inputPrice, currency, exchangeRate)}
+                  </div>
+                )}
             </div>
           </div>
 
