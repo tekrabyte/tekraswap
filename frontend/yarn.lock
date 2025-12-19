@@ -14694,15 +14694,6 @@ viem@>=2.23.11:
   version "2.43.2"
   resolved "https://registry.yarnpkg.com/viem/-/viem-2.43.2.tgz#56bd33c977ace94ee080632f39b63d43750ea994"
   integrity sha512-9fLAuPArLHnePaXiyj1jHsB7AaMXMD1WCV3q9QhpJk3+O6u8R5Ey7XjTIx4e2n4OrtkL3tcJDK9qVL770+SVyA==
-  dependencies:
-    "@noble/curves" "1.9.1"
-    "@noble/hashes" "1.8.0"
-    "@scure/bip32" "1.7.0"
-    "@scure/bip39" "1.6.0"
-    abitype "1.2.3"
-    isows "1.0.7"
-    ox "0.10.6"
-    ws "8.18.3"
 
 w3c-hr-time@^1.0.2:
   version "1.0.2"
