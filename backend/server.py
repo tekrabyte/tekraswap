@@ -121,6 +121,38 @@ async def token_balance(wallet: str, token_mint: str): # Hapus validasi ketat qu
     return await service.get_token_balance(wallet, token_mint)
 
 # ======================================================
+# MULTIPLE TOKEN BALANCES
+# ======================================================
+class TokenBalancesRequest(BaseModel):
+    wallet: str
+    token_mints: list[str]
+
+@api_router.post("/token-balances")
+async def get_multiple_token_balances(request: TokenBalancesRequest):
+    """
+    Get balances for multiple tokens at once.
+    Used by TokenSelectDialog to show balances for all tokens.
+    """
+    logger.info(f"Multiple balances request for {len(request.token_mints)} tokens")
+    
+    if not request.wallet or len(request.wallet) < 32:
+        return {"balances": {}}
+    
+    service = get_token_service()
+    balances = {}
+    
+    # Fetch balance for each token
+    for mint in request.token_mints:
+        try:
+            balance_data = await service.get_token_balance(request.wallet, mint)
+            balances[mint] = balance_data
+        except Exception as e:
+            logger.error(f"Error fetching balance for {mint}: {e}")
+            balances[mint] = {"balance": 0, "uiAmount": 0, "decimals": 0}
+    
+    return {"balances": balances}
+
+# ======================================================
 # VALIDATE TOKEN
 # ======================================================
 @api_router.post("/validate-token/{token_address}")
