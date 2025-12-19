@@ -211,64 +211,79 @@ backend:
 
 frontend:
   - task: "Update swap interface to show token list"
-    implemented: false
+    implemented: true
     working: "NA"
-    file: "frontend/src/pages/SwapPage.jsx"
+    file: "frontend/src/components/SwapCard.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Task identified - display token list with user tokens"
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Updated SwapCard to show token selection buttons with token list from backend"
 
   - task: "Add token metadata display"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "frontend/src/components/SwapCard.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Task identified - show token name, symbol, logo"
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Token buttons show name, symbol, logo (with fallback gradient icon if no logo)"
 
   - task: "Add token balance display"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "frontend/src/components/SwapCard.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Task identified - show balance for connected wallet"
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Balance displayed on token buttons and input fields, includes MAX button for input token"
 
   - task: "Add token search/filter functionality"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "frontend/src/components/TokenSelectDialog.jsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Task identified - create token search component"
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Created TokenSelectDialog with search by name, symbol, or address. Shows token list with balances"
 
   - task: "Add custom token address input"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "frontend/src/components/TokenSelectDialog.jsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Task identified - allow manual token address input"
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Added custom token input with validation using backend /api/validate-token endpoint"
 
 metadata:
   created_by: "main_agent"
