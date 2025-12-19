@@ -43,7 +43,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
             <Zap className="h-8 w-8 text-[#1D6FFF]" />
-            <span className="text-2xl font-heading font-bold text-white">TokenSwap</span>
+            <span className="text-2xl font-heading font-bold text-white">TekrabyteSwap</span>
           </div>
           <div className="flex items-center gap-4">
             <Button
