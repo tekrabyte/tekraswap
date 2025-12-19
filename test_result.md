@@ -342,3 +342,7 @@ agent_communication:
     message: "chart token tidak bekerja (chart token not working)"
   - agent: "main"
     message: "FIXED CHART TOKEN ISSUE: Integrated DexScreener API for real-time price data. Previously, /api/price-chart was returning mock/random data. Now fetches real price history from DexScreener. Tested successfully - TEKRA token (4ymWDE5k...) shows current price $5.768e-10, -0.60% 24h change, with 24 hourly data points. Includes fallback to mock data if token not found on DEX."
+  - agent: "user"
+    message: "Jupiter API error: [Errno -5] No address associated with hostname"
+  - agent: "main"
+    message: "FIXED JUPITER API HOSTNAME ERROR: Updated Jupiter API endpoints from deprecated 'quote-api.jup.ag' to new 'lite-api.jup.ag' endpoint. Jupiter migrated their API infrastructure - old endpoints no longer resolve. Updated both /api/swap (swap_jupiter function) and /api/quote endpoints. Backend and frontend services restarted successfully."
