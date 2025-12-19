@@ -24,6 +24,7 @@ logger = logging.getLogger("SOLANA_API")
 # IMPORT SERVICES
 # ======================================================
 from services.token_service import get_token_service
+from services.currency_service import get_currency_service
 
 # Import Jupiter Service (Pastikan file services/jupiter_service.py ada)
 try:
