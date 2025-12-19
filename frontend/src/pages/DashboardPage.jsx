@@ -72,6 +72,13 @@ export default function DashboardPage() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="space-y-8"
           >
+            {/* Portfolio Balance - NEW */}
+            {publicKey && (
+              <div data-testid="dashboard-portfolio">
+                <PortfolioBalance />
+              </div>
+            )}
+
             {/* Token Stats */}
             <div data-testid="dashboard-token-stats">
               <TokenStats />
