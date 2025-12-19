@@ -98,13 +98,21 @@ export function TokenSelectDialog({ open, onOpenChange, onSelectToken, selectedT
   const filteredTokens = useMemo(() => {
     if (!searchQuery.trim()) return tokens;
     
-    const query = searchQuery.toLowerCase();
-    return tokens.filter(
-      token =>
-        token.name?.toLowerCase().includes(query) ||
-        token.symbol?.toLowerCase().includes(query) ||
-        token.address?.toLowerCase().includes(query)
-    );
+    const query = searchQuery.trim().toLowerCase();
+    
+    return tokens.filter(token => {
+      // Search by name (case insensitive)
+      const nameMatch = token.name?.toLowerCase().includes(query);
+      
+      // Search by symbol (case insensitive)
+      const symbolMatch = token.symbol?.toLowerCase().includes(query);
+      
+      // Search by address (case insensitive, support partial match)
+      // User bisa paste full address atau sebagian address
+      const addressMatch = token.address?.toLowerCase().includes(query);
+      
+      return nameMatch || symbolMatch || addressMatch;
+    });
   }, [tokens, searchQuery]);
 
   const handleSelectToken = (token) => {
