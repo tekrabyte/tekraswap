@@ -242,6 +242,25 @@ backend:
         agent: "main"
         comment: "Tested successfully - TEKRA token (4ymWDE5kwxZ5rxN3mWLvJEBHESbZSiqBuvWmSVcGqZdj) returns real price data: current_price=$5.768e-10, price_change_24h=-0.60%, volume_24h=$0.09, with 24 hourly data points from Raydium DEX"
 
+  - task: "Fix Jupiter API endpoint migration"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported 'Jupiter API error: [Errno -5] No address associated with hostname' - DNS resolution failure"
+      - working: "NA"
+        agent: "main"
+        comment: "Investigated - Found that Jupiter deprecated old 'quote-api.jup.ag' endpoint. API migrated to new infrastructure: lite-api.jup.ag (free) and api.jup.ag (paid)"
+      - working: true
+        agent: "main"
+        comment: "Fixed - Updated both Jupiter API endpoints in server.py: swap_jupiter() function (line 196, 212) and get_quote() endpoint (line 314) from 'quote-api.jup.ag' to 'lite-api.jup.ag'. Verified new endpoint responds successfully."
+
+
 frontend:
   - task: "Update swap interface to show token list"
     implemented: true
