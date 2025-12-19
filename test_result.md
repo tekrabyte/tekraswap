@@ -292,6 +292,60 @@ backend:
 
 
 frontend:
+  - task: "Create PortfolioBalance component with total wallet value"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/components/PortfolioBalance.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported missing total wallet balance display - no way to see total USD value of all tokens"
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Created PortfolioBalance component with two modes: full (Dashboard) and compact (Swap page). Shows total USD value, token count, individual token balances with prices, volume_24h, market_cap. Includes auto-refresh every 30 seconds."
+
+  - task: "Add PortfolioBalance to Dashboard page"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/DashboardPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Added full PortfolioBalance component to Dashboard as first section when wallet is connected. Shows complete portfolio with all tokens and metadata."
+
+  - task: "Add compact PortfolioBalance to Swap page"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/SwapPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Added compact PortfolioBalance to Swap page showing total balance USD and token count with refresh button."
+
+  - task: "Update TokenStats with proper metadata and auto-refresh"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/components/TokenStats.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported token metadata not showing volume and market cap correctly"
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Updated TokenStats to show proper formatting for price (scientific notation for small values), volume_24h (K format), market_cap (M/K format). Added auto-refresh every 30 seconds and manual refresh button with timestamp."
+
   - task: "Update swap interface to show token list"
     implemented: true
     working: "NA"
