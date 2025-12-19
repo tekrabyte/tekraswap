@@ -69,7 +69,6 @@ const webpackConfig = {
         crypto: require.resolve("crypto-browserify"),
         stream: require.resolve("stream-browserify"),
         buffer: require.resolve("buffer/"),
-        process: require.resolve("process/browser.js"),
         http: require.resolve("stream-http"),
         https: require.resolve("https-browserify"),
         os: require.resolve("os-browserify/browser"),
@@ -80,18 +79,18 @@ const webpackConfig = {
         fs: false,
       };
 
-      // Ensure proper module resolution
-      webpackConfig.resolve.extensions = [
-        ...(webpackConfig.resolve.extensions || []),
-        '.js', '.mjs', '.jsx', '.json'
-      ];
+      // Add alias for process/browser compatibility
+      webpackConfig.resolve.alias = {
+        ...webpackConfig.resolve.alias,
+        'process/browser': require.resolve("process/browser.js"),
+      };
 
       // Provide global polyfills
       webpackConfig.plugins = webpackConfig.plugins || [];
       webpackConfig.plugins.push(
         new webpack.ProvidePlugin({
           Buffer: ["buffer", "Buffer"],
-          process: "process/browser.js",
+          process: "process/browser",
         })
       );
 
