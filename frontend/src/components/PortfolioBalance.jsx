@@ -78,7 +78,7 @@ export function PortfolioBalance({ compact = false, autoRefresh = true }) {
               <div>
                 <div className="text-xs text-white/50">Total Balance</div>
                 <div className="text-xl font-bold text-white font-mono">
-                  ${portfolio.total_usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {formatUSD(portfolio.total_usd)}
                 </div>
               </div>
             </div>
