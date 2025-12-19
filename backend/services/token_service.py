@@ -40,16 +40,44 @@ SOL_MINT = "So11111111111111111111111111111111111111112"
 
 
 class TokenService:
+    """Service for managing Solana token operations.
+    
+    This service provides comprehensive token functionality including:
+    - Fetching token metadata (name, symbol, decimals, logo)
+    - Querying token balances for wallets
+    - Retrieving real-time price data
+    - Getting historical price charts
+    
+    Attributes:
+        helius_rpc_url: Helius RPC endpoint URL
+        client: Async Solana RPC client
+        default_tokens: Dictionary of pre-configured popular tokens
+    """
+    
     def __init__(self):
-        # Gunakan RPC URL dari env, atau fallback ke public node
+        """Initialize Token Service.
+        
+        Environment Variables:
+            HELIUS_RPC_URL: Helius RPC endpoint (required for best performance)
+                          Falls back to public Solana node if not set.
+        
+        Example:
+            HELIUS_RPC_URL="https://mainnet.helius-rpc.com/?api-key=YOUR_KEY"
+        """
+        # Get Helius RPC URL from environment
         self.helius_rpc_url = os.environ.get('HELIUS_RPC_URL')
         if not self.helius_rpc_url:
             self.helius_rpc_url = "https://api.mainnet-beta.solana.com"
-            logger.warning("HELIUS_RPC_URL tidak sett, menggunakan Public Node")
+            logger.warning(
+                "HELIUS_RPC_URL not set. Using public Solana node. "
+                "Performance may be limited. Get Helius key at: https://www.helius.dev"
+            )
 
+        # Initialize Solana RPC client
         self.client = AsyncClient(self.helius_rpc_url, commitment=Confirmed)
         
-        # Daftar Token Default (Hanya untuk Metadata Statis: Nama, Symbol, Logo)
+        # Pre-configured popular tokens with static metadata
+        # This provides fallback data and improves response time
         self.default_tokens = {
             SOL_MINT: {
                 "address": SOL_MINT,
