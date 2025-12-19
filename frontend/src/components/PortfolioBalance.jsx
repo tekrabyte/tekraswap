@@ -80,9 +80,12 @@ export function PortfolioBalance({ compact = false, autoRefresh = true }) {
                 <Wallet className="h-5 w-5 text-white" />
               </div>
               <div>
-                <div className="text-xs text-white/50">Total Balance</div>
+                <div className="text-xs text-white/50 flex items-center gap-2">
+                  <span>Total Balance</span>
+                  <CurrencyToggle compact={true} />
+                </div>
                 <div className="text-xl font-bold text-white font-mono">
-                  {formatUSD(portfolio.total_usd)}
+                  {formatCurrency(portfolio.total_usd, currency, exchangeRate, { useShortFormat: true })}
                 </div>
               </div>
             </div>
