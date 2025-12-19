@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Coins, TrendingUp, Activity } from "lucide-react";
+import { Coins, TrendingUp, Activity, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import axios from "axios";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -15,12 +16,23 @@ export function TokenStats() {
     volume_24h: 0,
     market_cap: 0,
   });
+  const [loading, setLoading] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState(null);
 
   useEffect(() => {
     fetchTokenStats();
+    
+    // Auto-refresh setiap 30 detik
+    const interval = setInterval(() => {
+      fetchTokenStats(true); // silent refresh
+    }, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
-  const fetchTokenStats = async () => {
+  const fetchTokenStats = async (silent = false) => {
+    if (!silent) setLoading(true);
+    
     try {
       // Cek apakah URL backend sudah benar
       console.log("Fetching stats from:", `${API}/token-info?address=${TARGET_TOKEN}`);
@@ -40,10 +52,14 @@ export function TokenStats() {
         volume_24h: Number(data.volume_24h || data.volume || 0),
         market_cap: Number(data.market_cap || data.fdv || 0),
       });
+      
+      setLastUpdate(new Date());
 
     } catch (error) {
       console.error("Token stats error:", error);
       // Jika error, biarkan state tetap 0, jangan buat crash
+    } finally {
+      if (!silent) setLoading(false);
     }
   };
 
