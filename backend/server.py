@@ -88,16 +88,102 @@ async def get_status_checks():
             check['timestamp'] = datetime.fromisoformat(check['timestamp'])
     return status_checks
 
+@api_router.get("/token-list")
+async def get_token_list():
+    """Get list of supported tokens including user's tokens"""
+    try:
+        token_service = get_token_service()
+        tokens = await token_service.get_token_list()
+        return {"tokens": tokens}
+    except Exception as e:
+        logging.error(f"Error getting token list: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/token-metadata/{token_address}")
+async def get_token_metadata_endpoint(token_address: str):
+    """Get token metadata from Helius"""
+    try:
+        token_service = get_token_service()
+        metadata = await token_service.get_token_metadata(token_address)
+        if metadata is None:
+            raise HTTPException(status_code=404, detail="Token not found")
+        return metadata
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error getting token metadata: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/token-balance")
+async def get_token_balance_endpoint(
+    wallet: str = Query(..., description="Wallet address"),
+    token_mint: str = Query(..., description="Token mint address")
+):
+    """Get token balance for a wallet"""
+    try:
+        token_service = get_token_service()
+        balance = await token_service.get_token_balance(wallet, token_mint)
+        if balance is None:
+            raise HTTPException(status_code=404, detail="Balance not found")
+        return balance
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error getting token balance: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/token-balances")
+async def get_multiple_token_balances_endpoint(request: Dict):
+    """Get balances for multiple tokens"""
+    try:
+        wallet = request.get("wallet")
+        token_mints = request.get("token_mints", [])
+        
+        if not wallet or not token_mints:
+            raise HTTPException(status_code=400, detail="wallet and token_mints required")
+        
+        token_service = get_token_service()
+        balances = await token_service.get_multiple_token_balances(wallet, token_mints)
+        return {"balances": balances}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error getting token balances: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/validate-token/{token_address}")
+async def validate_token_endpoint(token_address: str):
+    """Validate if token exists and is tradeable"""
+    try:
+        token_service = get_token_service()
+        is_valid = await token_service.validate_token(token_address)
+        return {"valid": is_valid, "token_address": token_address}
+    except Exception as e:
+        logging.error(f"Error validating token: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/swap")
 async def swap_tokens(request: SwapRequest):
     """Execute token swap via Jupiter or Raydium"""
     try:
+        # Validate tokens before swap
+        token_service = get_token_service()
+        input_valid = await token_service.validate_token(request.inputMint)
+        output_valid = await token_service.validate_token(request.outputMint)
+        
+        if not input_valid:
+            raise HTTPException(status_code=400, detail=f"Invalid input token: {request.inputMint}")
+        if not output_valid:
+            raise HTTPException(status_code=400, detail=f"Invalid output token: {request.outputMint}")
+        
         if request.dex == "jupiter":
             return await swap_jupiter(request)
         elif request.dex == "raydium":
             return await swap_raydium(request)
         else:
             raise HTTPException(status_code=400, detail="Invalid DEX selection")
+    except HTTPException:
+        raise
     except Exception as e:
         logging.error(f"Swap error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
