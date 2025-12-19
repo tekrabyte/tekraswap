@@ -303,3 +303,7 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Starting implementation of Helius RPC integration and token management features. Will implement backend first (token service, endpoints), then frontend (UI components, token display)."
+  - agent: "main"
+    message: "FIXED CRITICAL BUG: Found bug in token_service.py line 17 - os.environ.get() was using URL value instead of env var name 'HELIUS_RPC_URL'. Fixed and backend now running successfully. Token list API tested and working - returning 2 TEKRA tokens as requested."
+  - agent: "user"
+    message: "chart token tidak bekerja (chart token not working)"
