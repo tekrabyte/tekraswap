@@ -109,7 +109,7 @@ user_problem_statement: |
      - Token 1: 4ymWDE5kwxZ5rxN3mWLvJEBHESbZSiqBuvWmSVcGqZdj (wallet: EcC2sMMECMwJRG8ZDjpyRpjR4YMFGY5GmCU7qNBqDLFp)
      - Token 2: FShCGqGUWRZkqovteJBGegUJAcjRzHZiBmHYGgSqpump (wallet: AfwGDmpKgNSKu1KHqnsCT8v5D8vRfg8Ne3CwD44BgfY8)
   2. Integrasikan Helius RPC sebagai main RPC untuk semua operasi Solana
-  3. Helius RPC URL: https://mainnet.helius-rpc.com/?api-key=c85bff04-bd73-403e-9ac8-9c949eb1b26c
+  3. Helius RPC URL: https://mainnet.helius-rpc.com/?api-key=chart-token-problem
   4. Fitur yang dibutuhkan:
      - Token metadata display (nama, symbol, decimals, logo)
      - Token balance display untuk wallet yang terkoneksi
