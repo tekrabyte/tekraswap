@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Coins, TrendingUp, Activity, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
+import { formatPrice, formatLargeNumber } from "@/utils/formatNumber";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -63,39 +64,25 @@ export function TokenStats() {
     }
   };
 
-  // 3. HELPER AMAN UNTUK FORMAT ANGKA
-  // Fungsi ini menjamin .toFixed() tidak akan dipanggil pada null/undefined
-  const safeFormat = (num, decimals = 2) => {
-    const n = Number(num);
-    if (isNaN(n) || n === 0) return "0.00"; // Tampilkan 0.00 jika data tidak valid
-    return n.toFixed(decimals);
-  };
-
   const statItems = [
     {
       label: "Price",
-      // Gunakan helper safeFormat
-      value: stats.price_usd > 0.01 
-        ? `$${safeFormat(stats.price_usd, 6)}` 
-        : `$${stats.price_usd.toExponential(2)}`,
+      // FIXED: Gunakan formatPrice utility untuk menghindari scientific notation
+      value: formatPrice(stats.price_usd),
       icon: Coins,
       testId: "price-stat",
     },
     {
       label: "24h Volume",
-      value: stats.volume_24h > 1000 
-        ? `$${safeFormat(stats.volume_24h / 1000, 2)}K`
-        : `$${safeFormat(stats.volume_24h, 2)}`,
+      // FIXED: Gunakan formatLargeNumber untuk format K/M/B
+      value: formatLargeNumber(stats.volume_24h, { showDollarSign: true, decimals: 2 }),
       icon: Activity,
       testId: "volume-stat",
     },
     {
       label: "Market Cap",
-      value: stats.market_cap > 1000000
-        ? `$${safeFormat(stats.market_cap / 1000000, 2)}M`
-        : stats.market_cap > 1000
-        ? `$${safeFormat(stats.market_cap / 1000, 2)}K`
-        : `$${safeFormat(stats.market_cap, 2)}`,
+      // FIXED: Gunakan formatLargeNumber untuk format K/M/B
+      value: formatLargeNumber(stats.market_cap, { showDollarSign: true, decimals: 2 }),
       icon: TrendingUp,
       testId: "market-cap-stat",
     },
