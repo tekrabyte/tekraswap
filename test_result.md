@@ -432,6 +432,12 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "Implemented - Created TokenSelectDialog with search by name, symbol, or address. Shows token list with balances"
+      - working: false
+        agent: "user"
+        comment: "User reported 'tidak bisa mencari address lain' - cannot search for other addresses"
+      - working: "NA"
+        agent: "main"
+        comment: "FIXED - Enhanced search functionality: improved filter logic with explicit name/symbol/address matching, added trim() to handle whitespace, made search case-insensitive, supports partial address matching, added clear button (X) to search input, improved placeholder text to guide users. Users can now search by partial or full token address, name, or symbol."
 
   - task: "Add custom token address input"
     implemented: true
