@@ -101,3 +101,172 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: |
+  User melaporkan token tidak terbaca di dApps swap DEX Jupiter. 
+  Requirements:
+  1. Tambahkan 2 token sebagai list swap utama:
+     - Token 1: 4ymWDE5kwxZ5rxN3mWLvJEBHESbZSiqBuvWmSVcGqZdj (wallet: EcC2sMMECMwJRG8ZDjpyRpjR4YMFGY5GmCU7qNBqDLFp)
+     - Token 2: FShCGqGUWRZkqovteJBGegUJAcjRzHZiBmHYGgSqpump (wallet: AfwGDmpKgNSKu1KHqnsCT8v5D8vRfg8Ne3CwD44BgfY8)
+  2. Integrasikan Helius RPC sebagai main RPC untuk semua operasi Solana
+  3. Helius RPC URL: https://mainnet.helius-rpc.com/?api-key=c85bff04-bd73-403e-9ac8-9c949eb1b26c
+  4. Fitur yang dibutuhkan:
+     - Token metadata display (nama, symbol, decimals, logo)
+     - Token balance display untuk wallet yang terkoneksi
+     - Token search/filter functionality
+     - Custom token support (user bisa input token address manual)
+     - Token validation sebelum swap
+     - Token balance endpoint
+
+backend:
+  - task: "Add Helius RPC integration to backend environment"
+    implemented: false
+    working: "NA"
+    file: "backend/.env"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Task identified - need to add HELIUS_RPC_URL to .env"
+
+  - task: "Create token service module with Helius integration"
+    implemented: false
+    working: "NA"
+    file: "backend/services/token_service.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Task identified - create service for token metadata and balance retrieval"
+
+  - task: "Add token list endpoint with user tokens"
+    implemented: false
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Task identified - create /api/token-list endpoint"
+
+  - task: "Add token metadata endpoint using Helius"
+    implemented: false
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Task identified - create /api/token-metadata endpoint"
+
+  - task: "Add token balance endpoint"
+    implemented: false
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Task identified - create /api/token-balance endpoint"
+
+  - task: "Add token validation in swap endpoints"
+    implemented: false
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Task identified - validate token before executing swap"
+
+frontend:
+  - task: "Update swap interface to show token list"
+    implemented: false
+    working: "NA"
+    file: "frontend/src/pages/SwapPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Task identified - display token list with user tokens"
+
+  - task: "Add token metadata display"
+    implemented: false
+    working: "NA"
+    file: "frontend/src/components/SwapCard.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Task identified - show token name, symbol, logo"
+
+  - task: "Add token balance display"
+    implemented: false
+    working: "NA"
+    file: "frontend/src/components/SwapCard.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Task identified - show balance for connected wallet"
+
+  - task: "Add token search/filter functionality"
+    implemented: false
+    working: "NA"
+    file: "frontend/src/components/TokenSelectDialog.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Task identified - create token search component"
+
+  - task: "Add custom token address input"
+    implemented: false
+    working: "NA"
+    file: "frontend/src/components/TokenSelectDialog.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Task identified - allow manual token address input"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Add Helius RPC integration to backend environment"
+    - "Create token service module with Helius integration"
+    - "Add token list endpoint with user tokens"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Starting implementation of Helius RPC integration and token management features. Will implement backend first (token service, endpoints), then frontend (UI components, token display)."
