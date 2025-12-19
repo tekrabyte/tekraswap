@@ -75,45 +75,77 @@ export function TokenStats() {
     {
       label: "Price",
       // Gunakan helper safeFormat
-      value: `$${safeFormat(stats.price_usd, 6)}`,
+      value: stats.price_usd > 0.01 
+        ? `$${safeFormat(stats.price_usd, 6)}` 
+        : `$${stats.price_usd.toExponential(2)}`,
       icon: Coins,
       testId: "price-stat",
     },
     {
       label: "24h Volume",
-      value: `$${safeFormat(stats.volume_24h / 1000, 1)}K`,
+      value: stats.volume_24h > 1000 
+        ? `$${safeFormat(stats.volume_24h / 1000, 2)}K`
+        : `$${safeFormat(stats.volume_24h, 2)}`,
       icon: Activity,
       testId: "volume-stat",
     },
     {
       label: "Market Cap",
-      value: `$${safeFormat(stats.market_cap / 1000000, 1)}M`,
+      value: stats.market_cap > 1000000
+        ? `$${safeFormat(stats.market_cap / 1000000, 2)}M`
+        : stats.market_cap > 1000
+        ? `$${safeFormat(stats.market_cap / 1000, 2)}K`
+        : `$${safeFormat(stats.market_cap, 2)}`,
       icon: TrendingUp,
       testId: "market-cap-stat",
     },
   ];
 
   return (
-    <div data-testid="token-stats" className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {statItems.map((stat) => (
-        <Card
-          key={stat.label}
-          data-testid={stat.testId}
-          className="backdrop-blur-xl bg-black/40 border border-white/10 shadow-2xl rounded-3xl hover:border-white/20 transition-all"
-        >
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-white/60 uppercase tracking-wide font-mono">
-                {stat.label}
-              </span>
-              <stat.icon className="h-5 w-5 text-[#1D6FFF]" />
-            </div>
-            <div className="text-2xl font-bold text-white font-mono tracking-tight">
-              {stat.value}
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+    <div data-testid="token-stats" className="space-y-3">
+      {/* Header with refresh button */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-bold text-white">TEKRA Token Stats</h3>
+        <div className="flex items-center gap-2">
+          {lastUpdate && (
+            <span className="text-xs text-white/40">
+              {lastUpdate.toLocaleTimeString()}
+            </span>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => fetchTokenStats()}
+            disabled={loading}
+            className="h-8 w-8 text-white/60 hover:text-white"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
+      </div>
+      
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {statItems.map((stat) => (
+          <Card
+            key={stat.label}
+            data-testid={stat.testId}
+            className="backdrop-blur-xl bg-black/40 border border-white/10 shadow-2xl rounded-3xl hover:border-white/20 transition-all"
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-white/60 uppercase tracking-wide font-mono">
+                  {stat.label}
+                </span>
+                <stat.icon className="h-5 w-5 text-[#1D6FFF]" />
+              </div>
+              <div className="text-2xl font-bold text-white font-mono tracking-tight">
+                {stat.value}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
