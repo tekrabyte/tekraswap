@@ -209,7 +209,7 @@ export function PortfolioBalance({ compact = false, autoRefresh = true }) {
                         <div>
                           <div className="text-white/40">24h Volume</div>
                           <div className="text-white/80 font-medium">
-                            ${token.volume_24h.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                            {formatLargeNumber(token.volume_24h, { showDollarSign: true, decimals: 2 })}
                           </div>
                         </div>
                       )}
@@ -217,9 +217,7 @@ export function PortfolioBalance({ compact = false, autoRefresh = true }) {
                         <div>
                           <div className="text-white/40">Market Cap</div>
                           <div className="text-white/80 font-medium">
-                            ${token.market_cap > 1000000 
-                              ? `${(token.market_cap / 1000000).toFixed(2)}M` 
-                              : token.market_cap.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                            {formatLargeNumber(token.market_cap, { showDollarSign: true, decimals: 2 })}
                           </div>
                         </div>
                       )}
