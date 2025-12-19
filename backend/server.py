@@ -142,6 +142,21 @@ async def price_chart(token: str, interval: str = "1h"):
     return await service.get_token_price_chart(token, interval)
 
 # ======================================================
+# EXCHANGE RATE (USD TO IDR)
+# ======================================================
+@api_router.get("/exchange-rate")
+async def get_exchange_rate():
+    """
+    Get current USD to IDR exchange rate.
+    Returns real-time rate with caching (1 hour).
+    """
+    logger.info("Exchange rate request")
+    service = get_currency_service()
+    rate_data = await service.get_usd_to_idr_rate()
+    return rate_data
+
+
+# ======================================================
 # 3. FIX ERROR: Quote & Swap
 # ======================================================
 @api_router.get("/quote")
