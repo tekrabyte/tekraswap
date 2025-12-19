@@ -63,27 +63,35 @@ const webpackConfig = {
       };
 
       // Add webpack 5 polyfills for node.js core modules
+      webpackConfig.resolve = webpackConfig.resolve || {};
       webpackConfig.resolve.fallback = {
         ...webpackConfig.resolve.fallback,
         crypto: require.resolve("crypto-browserify"),
         stream: require.resolve("stream-browserify"),
-        buffer: require.resolve("buffer"),
-        process: require.resolve("process/browser"),
+        buffer: require.resolve("buffer/"),
+        process: require.resolve("process/browser.js"),
         http: require.resolve("stream-http"),
         https: require.resolve("https-browserify"),
         os: require.resolve("os-browserify/browser"),
-        url: require.resolve("url"),
-        assert: require.resolve("assert"),
+        url: require.resolve("url/"),
+        assert: require.resolve("assert/"),
         zlib: false,
         path: false,
         fs: false,
       };
 
+      // Ensure proper module resolution
+      webpackConfig.resolve.extensions = [
+        ...(webpackConfig.resolve.extensions || []),
+        '.js', '.mjs', '.jsx', '.json'
+      ];
+
       // Provide global polyfills
+      webpackConfig.plugins = webpackConfig.plugins || [];
       webpackConfig.plugins.push(
         new webpack.ProvidePlugin({
           Buffer: ["buffer", "Buffer"],
-          process: "process/browser",
+          process: "process/browser.js",
         })
       );
 
