@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://token-display-fix-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://address-search-fix-1.preview.emergentagent.com/api"
 
 # Test token addresses
 SOL_TOKEN = "So11111111111111111111111111111111111111112"  # SOL
