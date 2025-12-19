@@ -157,11 +157,11 @@ backend:
 
   - task: "Add token list endpoint with user tokens"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -169,6 +169,9 @@ backend:
       - working: "NA"
         agent: "main"
         comment: "Implemented - Added GET /api/token-list endpoint that returns user's tokens and popular tokens (SOL, USDC, USDT)"
+      - working: true
+        agent: "main"
+        comment: "Tested via curl - endpoint returns all 5 tokens including 2 TEKRA tokens (4ymWDE5kwxZ5rxN3mWLvJEBHESbZSiqBuvWmSVcGqZdj and FShCGqGUWRZkqovteJBGegUJAcjRzHZiBmHYGgSqpump)"
 
   - task: "Add token metadata endpoint using Helius"
     implemented: true
