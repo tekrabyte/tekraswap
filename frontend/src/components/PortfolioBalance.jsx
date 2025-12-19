@@ -230,7 +230,7 @@ export function PortfolioBalance({ compact = false, autoRefresh = true }) {
                         <div>
                           <div className="text-white/40">24h Volume</div>
                           <div className="text-white/80 font-medium">
-                            {formatLargeNumber(token.volume_24h, { showDollarSign: true, decimals: 2 })}
+                            {formatLargeCurrency(token.volume_24h, currency, exchangeRate)}
                           </div>
                         </div>
                       )}
@@ -238,7 +238,7 @@ export function PortfolioBalance({ compact = false, autoRefresh = true }) {
                         <div>
                           <div className="text-white/40">Market Cap</div>
                           <div className="text-white/80 font-medium">
-                            {formatLargeNumber(token.market_cap, { showDollarSign: true, decimals: 2 })}
+                            {formatLargeCurrency(token.market_cap, currency, exchangeRate)}
                           </div>
                         </div>
                       )}
