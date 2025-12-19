@@ -319,3 +319,5 @@ agent_communication:
     message: "FIXED CRITICAL BUG: Found bug in token_service.py line 17 - os.environ.get() was using URL value instead of env var name 'HELIUS_RPC_URL'. Fixed and backend now running successfully. Token list API tested and working - returning 2 TEKRA tokens as requested."
   - agent: "user"
     message: "chart token tidak bekerja (chart token not working)"
+  - agent: "main"
+    message: "FIXED CHART TOKEN ISSUE: Integrated DexScreener API for real-time price data. Previously, /api/price-chart was returning mock/random data. Now fetches real price history from DexScreener. Tested successfully - TEKRA token (4ymWDE5k...) shows current price $5.768e-10, -0.60% 24h change, with 24 hourly data points. Includes fallback to mock data if token not found on DEX."
