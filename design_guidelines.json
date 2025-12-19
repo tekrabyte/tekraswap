@@ -1,0 +1,151 @@
+{
+  "design_system": {
+    "identity": {
+      "name": "E1",
+      "mission": "Create a top 1% Solana Token Swap dApp that blends 'Modern Minimal' with 'Web3 Professional' aesthetics.",
+      "principles": [
+        "Fusion over Imitation: Mix Finance precision with Art Gallery aesthetics.",
+        "Emotion First: Trust, Speed, and Fluidity.",
+        "Content is King: The 'Swap' is the hero; everything else supports it.",
+        "Zoom In: Focus on the numbers and the token logo.",
+        "Negative Space: Luxurious padding to prevent clutter."
+      ]
+    },
+    "typography": {
+      "font_family": {
+        "headings": "Space Grotesk, sans-serif",
+        "body": "Manrope, sans-serif",
+        "mono": "JetBrains Mono, monospace"
+      },
+      "usage": {
+        "h1": "text-5xl md:text-7xl font-bold tracking-tighter leading-none font-heading",
+        "h2": "text-3xl md:text-5xl font-semibold tracking-tight font-heading",
+        "h3": "text-2xl font-medium tracking-tight font-heading",
+        "body_large": "text-lg md:text-xl leading-relaxed text-muted-foreground font-body",
+        "body_default": "text-base leading-relaxed text-muted-foreground font-body",
+        "caption": "text-sm font-medium tracking-wide uppercase text-muted-foreground/60 font-mono",
+        "numbers": "font-mono tracking-tight"
+      }
+    },
+    "colors": {
+      "palette": {
+        "primary": "#1D6FFF",
+        "primary_foreground": "#FFFFFF",
+        "background": "#020408",
+        "surface": "#0B0C12",
+        "surface_highlight": "#161821",
+        "border": "rgba(255, 255, 255, 0.08)",
+        "accent_success": "#00E096",
+        "accent_warning": "#FFB020",
+        "accent_error": "#FF4D4D",
+        "text_primary": "#FFFFFF",
+        "text_secondary": "#94A3B8"
+      },
+      "gradients": {
+        "hero_glow": "radial-gradient(circle at 50% 50%, rgba(29, 111, 255, 0.15) 0%, rgba(2, 4, 8, 0) 70%)",
+        "card_surface": "linear-gradient(180deg, rgba(11, 12, 18, 0.8) 0%, rgba(11, 12, 18, 0.4) 100%)",
+        "active_border": "linear-gradient(90deg, #1D6FFF 0%, #00E096 100%)"
+      }
+    },
+    "visual_enhancers": {
+      "glassmorphism": {
+        "default": "backdrop-blur-xl bg-black/40 border border-white/10 shadow-2xl",
+        "heavy": "backdrop-blur-2xl bg-black/60 border border-white/5"
+      },
+      "borders": {
+        "subtle": "border border-white/5",
+        "glow": "ring-1 ring-primary/50 shadow-[0_0_16px_rgba(29,111,255,0.3)]"
+      },
+      "shadows": {
+        "neon": "0 0 20px rgba(29, 111, 255, 0.15)",
+        "deep": "0 24px 48px -12px rgba(0, 0, 0, 0.8)"
+      }
+    },
+    "layout_strategies": {
+      "spacing": {
+        "container_padding": "p-6 md:p-12 lg:p-24",
+        "section_gap": "gap-16 md:gap-32",
+        "element_gap": "gap-4 md:gap-8"
+      },
+      "grids": {
+        "marketing": "grid grid-cols-1 md:grid-cols-12 gap-8",
+        "dashboard": "grid grid-cols-1 md:grid-cols-4 gap-6"
+      }
+    }
+  },
+  "components": {
+    "Button": {
+      "styles": {
+        "primary": "bg-[#1D6FFF] hover:bg-[#1D6FFF]/90 text-white rounded-full px-8 py-6 text-lg font-medium transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(29,111,255,0.3)]",
+        "secondary": "bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-full px-6 py-4 backdrop-blur-md transition-all",
+        "ghost": "hover:bg-white/5 text-muted-foreground hover:text-white transition-colors"
+      }
+    },
+    "Card": {
+      "base": "rounded-3xl border border-white/5 bg-[#0B0C12]/80 backdrop-blur-md overflow-hidden",
+      "hover": "hover:border-white/10 transition-colors duration-300"
+    },
+    "Input": {
+      "base": "bg-black/20 border-white/10 focus:border-[#1D6FFF] focus:ring-1 focus:ring-[#1D6FFF] rounded-xl h-14 text-lg px-4 transition-all placeholder:text-white/20"
+    }
+  },
+  "assets": {
+    "images": {
+      "hero_background": {
+        "url": "https://images.unsplash.com/photo-1633538475696-a93e30810e09?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Abstract 3D Blue Wave Background",
+        "usage": "Hero section background with overlay"
+      },
+      "abstract_texture": {
+        "url": "https://images.unsplash.com/photo-1748362904327-a58fc1f0bced?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Blue Wavy Pattern",
+        "usage": "Subtle texture for feature sections"
+      },
+      "chart_placeholder": {
+        "url": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Data Visualization",
+        "usage": "Placeholder for chart areas if real data fails"
+      }
+    },
+    "icons": {
+      "library": "lucide-react",
+      "mappings": {
+        "swap": "ArrowRightLeft",
+        "wallet": "Wallet",
+        "chart": "LineChart",
+        "history": "History",
+        "settings": "Settings",
+        "solana": "Zap",
+        "token": "Coins"
+      }
+    }
+  },
+  "instructions_to_main_agent": {
+    "general": [
+      "Implement a 'Dark Mode First' approach. The app should feel like a premium trading terminal.",
+      "Use 'Space Grotesk' for all Headings (h1-h3) and 'Manrope' for body text. Use 'JetBrains Mono' for prices and addresses.",
+      "The 'Swap' interface is the crown jewel. Make it float using the 'glassmorphism' styles defined above.",
+      "Ensure the 'Connect Wallet' button is prominent and uses the 'primary' button style.",
+      "Use 'Recharts' for the price chart. Style it with a single neon blue line and a gradient fill below it.",
+      "For the 'Token Info' section, use a 'Bento Grid' layout to display Price, Market Cap, and Volume.",
+      "Use 'framer-motion' for smooth page transitions and entrance animations (fade-in + slide-up)."
+    ],
+    "specific_pages": {
+      "landing": "Hero section must have the 'hero_background' image with a heavy dark gradient overlay. The CTA 'Buy Token' should be massive.",
+      "swap_page": "Center the swap card. Add a 'slippage' settings cog icon. Show 'Estimated Received' clearly.",
+      "dashboard": "Use a sidebar layout or top-nav. Display 'Transaction History' in a clean table with mono-spaced fonts for hashes."
+    },
+    "accessibility": [
+      "Ensure all text has a contrast ratio of at least 4.5:1 against the dark background.",
+      "Interactive elements must have a visible focus state (use ring-primary).",
+      "Add aria-labels to all icon-only buttons."
+    ]
+  },
+  "universal_guidelines": [
+    "Do not use gradients for text unless it's a very large headline.",
+    "Avoid 'Inter' font. Use the specified font stack.",
+    "Always add 'data-testid' to interactive elements.",
+    "Use 'sonner' for notifications (e.g., 'Swap Successful').",
+    "Never use default scrollbars. Style them to be thin and dark."
+  ]
+}
