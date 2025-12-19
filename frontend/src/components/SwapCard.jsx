@@ -136,7 +136,18 @@ export function SwapCard() {
 
   const handleSwap = async () => {
     if (!connected || !publicKey) {
-      toast.error("Please connect your wallet");
+      toast.error("Hubungkan wallet terlebih dahulu");
+      return;
+    }
+
+    if (!inputAmount || parseFloat(inputAmount) <= 0) {
+      toast.error("Masukkan jumlah token yang valid");
+      return;
+    }
+
+    // Validate balance
+    if (inputBalance && parseFloat(inputAmount) > inputBalance.uiAmount) {
+      toast.error("Saldo tidak cukup");
       return;
     }
 
@@ -162,7 +173,7 @@ export function SwapCard() {
         skipPreflight: false,
       });
 
-      toast.success(`Swap successful!`);
+      toast.success(`Swap berhasil! Signature: ${signature.substring(0, 8)}...`);
       setInputAmount("");
       setOutputAmount("");
       
@@ -173,7 +184,22 @@ export function SwapCard() {
       }, 2000);
     } catch (error) {
       console.error("Swap error:", error);
-      toast.error("Swap failed. Check console for details.");
+      
+      // Better error messages
+      let errorMessage = "Swap gagal";
+      if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.message) {
+        if (error.message.includes("User rejected")) {
+          errorMessage = "Transaksi dibatalkan oleh user";
+        } else if (error.message.includes("insufficient funds")) {
+          errorMessage = "Saldo tidak cukup untuk membayar fee transaksi";
+        } else {
+          errorMessage = `Swap gagal: ${error.message}`;
+        }
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
