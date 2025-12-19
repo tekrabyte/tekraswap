@@ -221,6 +221,27 @@ backend:
         agent: "main"
         comment: "Implemented - Added token validation in /api/swap endpoint before executing swap, also added POST /api/validate-token/{token_address} endpoint"
 
+  - task: "Integrate real-time price chart data from DexScreener"
+    implemented: true
+    working: true
+    file: "backend/services/token_service.py, backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported 'chart token tidak bekerja' - price chart showing mock/random data instead of real token prices"
+      - working: "NA"
+        agent: "main"
+        comment: "Identified issue - /api/price-chart endpoint was using mock random data with comment 'In production, integrate with DexScreener or Birdeye API'"
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented - Added get_token_price_chart method in TokenService to fetch data from DexScreener API. Updated /api/price-chart endpoint to use real data with fallback to mock if API fails"
+      - working: true
+        agent: "main"
+        comment: "Tested successfully - TEKRA token (4ymWDE5kwxZ5rxN3mWLvJEBHESbZSiqBuvWmSVcGqZdj) returns real price data: current_price=$5.768e-10, price_change_24h=-0.60%, volume_24h=$0.09, with 24 hourly data points from Raydium DEX"
+
 frontend:
   - task: "Update swap interface to show token list"
     implemented: true
