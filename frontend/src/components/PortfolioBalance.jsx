@@ -191,13 +191,13 @@ export function PortfolioBalance({ compact = false, autoRefresh = true }) {
                     {/* Balance & Value */}
                     <div className="text-right">
                       <div className="font-bold text-white">
-                        {token.balance.toFixed(token.decimals > 6 ? 4 : 2)} {token.symbol}
+                        {formatTokenBalance(token.balance, token.decimals)} {token.symbol}
                       </div>
                       <div className="text-sm text-white/60">
-                        ${token.value_usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatUSD(token.value_usd)}
                       </div>
                       <div className="text-xs text-white/40">
-                        @ ${token.price_usd > 0.01 ? token.price_usd.toFixed(4) : token.price_usd.toExponential(2)}
+                        @ {formatPrice(token.price_usd)}
                       </div>
                     </div>
                   </div>
